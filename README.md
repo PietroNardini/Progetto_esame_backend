@@ -26,11 +26,10 @@ HRFlow è un'applicazione progettata per la gestione dei turni di lavoro e delle
 
 ---
 
-## 🛠 Installazione e utilizzo
-*(Se necessario, aggiungere istruzioni per installazione e utilizzo qui)*
-
----
 
 ## 👥 Autori
 - **Team Stack Overflowed**
-
+    - **Pietro Nardini**
+    - **Tommaso Ama**
+    - **Francesco Fiorini**
+    - **Roberto D'Angelo**
