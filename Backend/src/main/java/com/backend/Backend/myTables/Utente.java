@@ -1,4 +1,6 @@
 package com.backend.Backend.myTables;
+import jakarta.annotation.Nonnull;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,5 +20,8 @@ import lombok.NoArgsConstructor;
 public class Utente {
     @Id //indica che il campo è la chiave primaria della tabella
     private String email;
-
+    @Column(nullable = false)//impongo sia a livello di database che a livello di codice che il campo non possa essere nullo
+    @Nonnull
+    private String password;
+    
 }
