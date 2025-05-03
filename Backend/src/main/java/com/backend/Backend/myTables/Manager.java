@@ -17,6 +17,6 @@ import lombok.NoArgsConstructor;
 @PrimaryKeyJoinColumn(name = "id")
 public class Manager extends Utente {
     @Column(nullable = false)
-    private String stipendio;
+    private Long stipendio;
     
 }

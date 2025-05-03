@@ -14,7 +14,7 @@ public class OraLavorativa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String tipo; // Ad esempio: "normale" o "straordinaria"
+    private String tipo; 
     @ManyToMany
     @JoinTable(
         name = "impiegato_ora_lavorativa",
