@@ -21,12 +21,12 @@ import lombok.EqualsAndHashCode;
 @PrimaryKeyJoinColumn(name = "id")
 @Inheritance(strategy = InheritanceType.JOINED)
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME, // Use a type identifier in the JSON
-    include = JsonTypeInfo.As.PROPERTY, // Include the type identifier as a property
-    property = "type" // The property name in the JSON that specifies the type
+    use = JsonTypeInfo.Id.NAME, // Per sfruttare il polimorfismo devo inserire il tipo della classe nel json 
+    include = JsonTypeInfo.As.PROPERTY, 
+    property = "type"
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = ImpiegatoPagatoOra.class, name = "pagatoOra"),
+    @JsonSubTypes.Type(value = ImpiegatoPagatoOra.class, name = "pagatoOra"),//in base al tipo di impiegato viene serializzato in un modo o nell'altro
     @JsonSubTypes.Type(value = ImpiegatoStipendiato.class, name = "stipendiato")
 })
 public abstract class Impiegato extends Utente {

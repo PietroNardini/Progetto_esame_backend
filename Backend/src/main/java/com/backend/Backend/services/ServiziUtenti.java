@@ -1,5 +1,9 @@
 package com.backend.Backend.services;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -57,4 +61,28 @@ public class ServiziUtenti {
                 return "Errore nell'inserimento dell'impiegato: " +e.getClass().getCanonicalName();
             }
         }
+        public List<Utente> GetManagerByDipartimento(String dipartimento) {
+            return managerRepository.findByDipartimento(dipartimento);
+        }
+        public List<Utente> GetImpiegatoByDipartimento(String dipartimento) {
+            List<ImpiegatoPagatoOra> impiegatiPagatiOra = impiegatoPagatoOraRepository.findByDipartimento(dipartimento);
+            List<ImpiegatoStipendiato> impiegatiStipendiati = impiegatoStipendiatoRepository.findByDipartimento(dipartimento);
+            List<Utente> allImpiegati = new ArrayList<>();
+
+            allImpiegati.addAll(impiegatiPagatiOra);
+
+            allImpiegati.addAll(impiegatiStipendiati);
+
+            return allImpiegati;
+        }
+        public Map<String, Object> Login(String email, String password) {
+            Utente user = utentiRepository.findByEmail(email);
+            if (user == null) {
+                    return Map.of("result", "user not found"); // Returning a String for error
+            }
+            if (!user.verifyPassword(password)) {
+                    return Map.of("result", "password isn't correct for this user"); // Returning a String for error
+            }
+            return Map.of("result", user); // Returning a Persona object for success
+    } 
 }
