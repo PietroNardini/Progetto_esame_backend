@@ -12,10 +12,12 @@ import com.backend.Backend.myTables.Impiegato;
 import com.backend.Backend.myTables.ImpiegatoPagatoOra;
 import com.backend.Backend.myTables.ImpiegatoStipendiato;
 import com.backend.Backend.myTables.Manager;
+import com.backend.Backend.myTables.PasswordResetToken;
 import com.backend.Backend.myTables.Utente;
 import com.backend.Backend.repositories.ImpiegatoPagatoOraRepository;
 import com.backend.Backend.repositories.ImpiegatoStipendiatoRepository;
 import com.backend.Backend.repositories.ManagerRepository;
+import com.backend.Backend.repositories.RepositoryPasswordResetToken;
 import com.backend.Backend.repositories.UtentiRepository;
 
 @Service
@@ -26,6 +28,9 @@ public class ServiziUtenti {
         private ManagerRepository managerRepository;
         @Autowired
         private ImpiegatoPagatoOraRepository impiegatoPagatoOraRepository;
+        @Autowired
+        private RepositoryPasswordResetToken repositoryPasswordResetToken;
+    
         @Autowired
         private ImpiegatoStipendiatoRepository impiegatoStipendiatoRepository;
         public String InsertManager(Manager manager) {
@@ -85,4 +90,28 @@ public class ServiziUtenti {
             }
             return Map.of("result", user); // Returning a Persona object for success
     } 
+    public Utente GetUtenteByEmail(String email) {
+        return utentiRepository.findByEmail(email);
+    }
+    public void createPasswordResetTokenForUser(Utente user, String token) {        
+        PasswordResetToken myToken = new PasswordResetToken(token, user);
+        repositoryPasswordResetToken.save(myToken);
+    }
+public Map<String, Object> ChangePassword(String token, String password) {
+        PasswordResetToken request = repositoryPasswordResetToken.findByToken(token);
+        if (request == null) {
+                return Map.of("result", "wrong token"); // Returning a String for error
+        }
+        if (request.getExpiryDate().getTime() < System.currentTimeMillis()) {
+                System.out.println("Token expired: " + request.getExpiryDate().getTime() + " < " + System.currentTimeMillis());
+                repositoryPasswordResetToken.delete(request); 
+
+                return Map.of("result", "request expired"); // Returning a String for error
+        }
+        Utente user = request.getUser();
+        utentiRepository.setPassword(user.getEmail(),Utente.changePassword(password)); 
+        repositoryPasswordResetToken.delete(request); 
+        user.setPassword(password); // Update the user's password in memory
+        return Map.of("result", user); // Returning a Persona object for success
+}
 }

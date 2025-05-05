@@ -2,10 +2,15 @@ package com.backend.Backend.api;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,12 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.Backend.myTables.Impiegato;
-import com.backend.Backend.myTables.ImpiegatoPagatoOra;
-import com.backend.Backend.myTables.ImpiegatoStipendiato;
+
 import com.backend.Backend.myTables.Manager;
 import com.backend.Backend.myTables.OraLavorativa;
 import com.backend.Backend.myTables.Utente;
 import com.backend.Backend.services.ServiziUtenti;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 /*Indica che questa classe è un controller REST, progettato per gestire richieste HTTP e restituire risposte JSON o altri formati direttamente nel corpo della risposta. */
@@ -26,6 +34,10 @@ import com.backend.Backend.services.ServiziUtenti;
 public class MainController {
         @Autowired
         private ServiziUtenti serviziUtenti;
+        @Autowired
+        private Environment env;
+        @Autowired
+        private JavaMailSender mailSender;
         @GetMapping
         public String GetAllImpiegati() {
                 return "Hello World!";
@@ -161,4 +173,69 @@ public class MainController {
             return ResponseEntity.ok(response);
             
     }
+    @PostMapping("/ResetPasswordRequest")
+    /*ESEMPIO CHIAMATA 
+         * POST http://localhost:8080/api/ResetPasswordRequest
+         * {
+            "email": "email@esempio.com"
+            }
+    }*/
+    public ResponseEntity<Map<String, String>> requestPasswordReset(HttpServletRequest request ,@RequestBody Map<String, String> requestBody) {
+        Map<String, String> response = new HashMap<>();
+        String email = requestBody.get("email");
+        if (email == null) {
+            response.put("error", "Email not provided");
+            return ResponseEntity.badRequest().body(response);
+        }
+        Utente user=serviziUtenti.GetUtenteByEmail(email);
+        if (user == null) {
+            response.put("error", "User with this email does not exist");
+            return ResponseEntity.badRequest().body(response);
+        }
+        try {
+            String token = UUID.randomUUID().toString();
+            serviziUtenti.createPasswordResetTokenForUser(user, token);
+            mailSender.send(constructResetTokenEmail("http://localhost:4020/", request.getLocale(), token, user));
+            response.put("message", "Password reset link sent to " + email);
+        } catch (Exception e) {
+            System.out.println("Error sending email: " + e.getMessage());
+            response.put("error", "Failed to send password reset link");
+        }
+        return ResponseEntity.ok(response);
+    }
+    private MimeMessage constructResetTokenEmail(String contextPath, Locale locale, String token, Utente user) throws MessagingException {
+    String url = contextPath + "changePassword/" + token;
+    String message = String.format("""
+        <html>
+            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <h2 style="color: #333333;">Password Reset Request</h2>
+                    <p style="font-size: 16px; color: #555555;">
+                        We received a request to reset your password. If you made this request, please click the button below:
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="%s"
+                           style="background-color: #007bff; color: white; padding: 14px 24px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+                            Reset Password
+                        </a>
+                    </div>
+                    <p style="font-size: 14px; color: #888888;">
+                        If you did not request a password reset, please ignore this email or contact our support team if you have any concerns.
+                    </p>
+                    <p style="font-size: 12px; color: #cccccc; margin-top: 30px;">
+                        This link will expire in 24 hours for your protection.
+                    </p>
+                </div>
+            </body>
+        </html>
+        """, url);
+
+    MimeMessage email = mailSender.createMimeMessage();
+    MimeMessageHelper helper = new MimeMessageHelper(email, true);
+    helper.setSubject("Reset Password");
+    helper.setTo(user.getEmail());
+    helper.setFrom(env.getProperty("spring.mail.username"));
+    helper.setText(message, true); // Set the second parameter to true to indicate HTML content
+    return email;
+}   
 }
