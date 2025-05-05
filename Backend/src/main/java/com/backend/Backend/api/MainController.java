@@ -238,4 +238,26 @@ public class MainController {
     helper.setText(message, true); // Set the second parameter to true to indicate HTML content
     return email;
 }   
+@PostMapping("/updatePassword")
+    public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, String> requestBody) {
+        Map<String, Object> response = new HashMap<>();
+        String token = requestBody.get("token");
+        String newPassword = requestBody.get("password");
+        try {
+            Map<String, Object> loginResult = serviziUtenti.ChangePassword(token, newPassword);
+            Object result = loginResult.get("result");
+            if (result instanceof String) {
+                response.put("message", result); 
+            } else if (result instanceof Utente) {
+                response.put("message", "Password changed successfully");
+                response.put("userData", result); 
+            }
+            return ResponseEntity.ok(response);
+        }
+        catch (Exception e) {
+            System.out.println("Error changing password: " + e.getMessage());
+            response.put("error", "Failed to change password");
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }
