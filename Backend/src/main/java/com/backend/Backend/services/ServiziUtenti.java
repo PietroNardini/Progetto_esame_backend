@@ -80,6 +80,17 @@ public class ServiziUtenti {
 
             return allImpiegati;
         }
+        public List<Utente> GetAllImpiegati() {
+            List<ImpiegatoPagatoOra> impiegatiPagatiOra = impiegatoPagatoOraRepository.findAll();
+            List<ImpiegatoStipendiato> impiegatiStipendiati = impiegatoStipendiatoRepository.findAll();
+            List<Utente> allImpiegati = new ArrayList<>();
+
+            allImpiegati.addAll(impiegatiPagatiOra);
+
+            allImpiegati.addAll(impiegatiStipendiati);
+
+            return allImpiegati;
+        }
         public Map<String, Object> Login(String email, String password) {
             Utente user = utentiRepository.findByEmail(email);
             if (user == null) {

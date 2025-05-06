@@ -1,5 +1,6 @@
 package com.backend.Backend.api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -38,9 +39,32 @@ public class MainController {
         private Environment env;
         @Autowired
         private JavaMailSender mailSender;
-        @GetMapping
-        public String GetAllImpiegati() {
-                return "Hello World!";
+        public  List<Map<String,String>> readyData(List<Utente> utenti) {
+            List<Map<String,String>> data = new ArrayList<>();
+            for(Utente result : utenti){
+                Map<String,String> utentiMap = new HashMap<>();
+                utentiMap.put("id", ((Utente)result).getId().toString());
+                utentiMap.put("email", ((Utente)result).getEmail());
+                utentiMap.put("nome", ((Utente)result).getNome());
+                utentiMap.put("cognome", ((Utente)result).getCognome());
+                utentiMap.put("telefono", ((Utente)result).getTelefono());
+                utentiMap.put("dipartimento", ((Utente)result).getDipartimento());
+                utentiMap.put("dataDiNascita", ((Utente)result).getDataDiNascita().toString());
+                utentiMap.put("tipo", ((Utente)result).getClass().getSimpleName());
+                data.add(utentiMap);
+            }
+            return data;
+        }
+        @GetMapping("/GetAllImpiegati")
+        public List<Map<String,String>> GetAllImpiegati() {
+                try{
+                    return readyData(serviziUtenti.GetAllImpiegati());
+                        
+                }
+                catch(Exception e){
+                        System.out.println(e.getMessage());
+                        return null;
+                }
         }
         @GetMapping("/GetAllOre")
         public List<OraLavorativa> GetAllOre() {
@@ -55,25 +79,25 @@ public class MainController {
         "dipartimento": "IT"
         }
         */
-        public List<Utente> GetByDipartimento(@RequestBody Map<String,String> request) {
+        public List<Map<String,String>> GetByDipartimento(@RequestBody Map<String,String> request) {
             String dipartimento = request.get("dipartimento");
             String tipo = request.get("tipo_Utente");
             if(tipo== null){
                 List<Utente> utenti = serviziUtenti.GetManagerByDipartimento(dipartimento);
                 utenti.addAll(serviziUtenti.GetImpiegatoByDipartimento(dipartimento));
-                return utenti; 
+                return readyData(utenti); 
             }
             try{
                 if(tipo.equals("Manager")){
-                    return serviziUtenti.GetManagerByDipartimento(dipartimento);
+                    return readyData(serviziUtenti.GetManagerByDipartimento(dipartimento));
                 }
                 else if(tipo.equals("Impiegato")){
-                    return serviziUtenti.GetImpiegatoByDipartimento(dipartimento);
+                    return readyData(serviziUtenti.GetImpiegatoByDipartimento(dipartimento));
                 }
                 else{
                     List<Utente> utenti = serviziUtenti.GetManagerByDipartimento(dipartimento);
                     utenti.addAll(serviziUtenti.GetImpiegatoByDipartimento(dipartimento));
-                    return utenti ;
+                    return readyData(utenti) ;
                 }
             }
             catch (Exception e) {

@@ -8,5 +8,4 @@ import com.backend.Backend.myTables.ImpiegatoPagatoOra;
 
 public interface ImpiegatoPagatoOraRepository extends JpaRepository<ImpiegatoPagatoOra, Long> {
     public List<ImpiegatoPagatoOra> findByDipartimento(String dipartimento);
-
 }
