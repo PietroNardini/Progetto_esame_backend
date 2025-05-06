@@ -55,6 +55,18 @@ public class MainController {
             }
             return data;
         }
+        public Map<String,Object> readyData(Utente utente) {
+            Map<String,Object> data = new HashMap<>();
+            data.put("id", utente.getId());
+            data.put("email", utente.getEmail());
+            data.put("nome", utente.getNome());
+            data.put("cognome", utente.getCognome());
+            data.put("telefono", utente.getTelefono());
+            data.put("dipartimento", utente.getDipartimento());
+            data.put("dataDiNascita", utente.getDataDiNascita().toString());
+            data.put("tipo", utente.getClass().getSimpleName());
+            return data;
+        }
         @GetMapping("/GetAllImpiegati")
         public List<Map<String,String>> GetAllImpiegati() {
                 try{
@@ -179,17 +191,9 @@ public class MainController {
                     response.put("message", result);
                 } else if (result instanceof Utente) {
                     
-                    Map<String, Object> userData = new HashMap<>();
-                    userData.put("id", ((Utente)result).getId());
-                    userData.put("email", ((Utente)result).getEmail());
-                    userData.put("nome", ((Utente)result).getNome());
-                    userData.put("cognome", ((Utente)result).getCognome());
-                    userData.put("telefono", ((Utente)result).getTelefono());
-                    userData.put("dipartimento", ((Utente)result).getDipartimento());
-                    userData.put("dataDiNascita", ((Utente)result).getDataDiNascita().toString());
-                    userData.put("tipo", ((Utente)result).getClass().getSimpleName());
+                    
                     response.put("message", "Login successful");
-                    response.put("userData", userData); 
+                    response.put("userData", readyData((Utente)result)); 
                 }
             } catch (Exception e) {
                 response.put("error", "Failed to login user");
