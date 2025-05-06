@@ -1,5 +1,6 @@
 package com.backend.Backend.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -113,11 +114,11 @@ public Map<String, Object> ChangePassword(String token, String password) {
         if (request == null) {
                 return Map.of("result", "wrong token"); // Returning a String for error
         }
-        if (request.getExpiryDate().getTime() < System.currentTimeMillis()) {
-                System.out.println("Token expired: " + request.getExpiryDate().getTime() + " < " + System.currentTimeMillis());
-                repositoryPasswordResetToken.delete(request); 
+        if (request.getExpiryDate().isBefore(LocalDateTime.now())) { // Updated to use LocalDateTime comparison
+                        System.out.println("Token expired: " + request.getExpiryDate() + " < " + LocalDateTime.now());
+                        repositoryPasswordResetToken.delete(request);
 
-                return Map.of("result", "request expired"); // Returning a String for error
+                        return Map.of("result", "request expired"); // Returning a String for error
         }
         Utente user = request.getUser();
         utentiRepository.setPassword(user.getEmail(),Utente.changePassword(password)); 

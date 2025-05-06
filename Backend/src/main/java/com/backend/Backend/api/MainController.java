@@ -190,8 +190,6 @@ public class MainController {
                 if (result instanceof String) {
                     response.put("message", result);
                 } else if (result instanceof Utente) {
-                    
-                    
                     response.put("message", "Login successful");
                     response.put("userData", readyData((Utente)result)); 
                 }
@@ -223,8 +221,8 @@ public class MainController {
         try {
             String token = UUID.randomUUID().toString();
             serviziUtenti.createPasswordResetTokenForUser(user, token);
-            mailSender.send(constructResetTokenEmail("http://localhost:4020/", request.getLocale(), token, user));
-            response.put("message", "Password reset link sent to " + email);
+            mailSender.send(constructResetTokenEmail("http://localhost:4200/", request.getLocale(), token, user));
+            response.put("message", "A password reset link has been sent to your email. If you don't see it within a few minutes, please check your spam or junk folder.");
         } catch (Exception e) {
             System.out.println("Error sending email: " + e.getMessage());
             response.put("error", "Failed to send password reset link");

@@ -1,5 +1,6 @@
 package com.backend.Backend.myTables;
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -32,14 +33,15 @@ public class PasswordResetToken {
     @JoinColumn(nullable = false, name = "user_id")
     private Utente user;
  
-    private Date expiryDate;
+    private LocalDateTime expiryDate;
     public PasswordResetToken(String token, Utente user) {
         this.token = token;
         this.user = user;
-        this.expiryDate = new Date(System.currentTimeMillis() + EXPIRATION * 60 * 1000); // Set expiry date to 60 minutes from now
+        this.expiryDate = LocalDateTime.now().plusMinutes(EXPIRATION); // Set expiry date to 60 minutes from now
     }
-    public void setExpiryDate() {
-        this.expiryDate = new Date(System.currentTimeMillis() + EXPIRATION * 60 * 1000); // Set expiry date to 60 minutes from now
 
+    public void setExpiryDate() {
+        this.expiryDate = LocalDateTime.now().plusMinutes(EXPIRATION); // Update expiry date to 60 minutes from now
     }
+    
 }
