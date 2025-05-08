@@ -13,9 +13,6 @@ import lombok.*;
 public class ImpiegatoStipendiato extends Impiegato {
     @Column(nullable = false)
     private Double stipendioMensile;
-    @Override
-    public double calcolaStipendioMensile() {
-        return stipendioMensile;
-    }
+    
 }
 

@@ -276,7 +276,7 @@ public class MainController {
                 response.put("message", result); 
             } else if (result instanceof Utente) {
                 response.put("message", "Password changed successfully");
-                response.put("userData", readyData((Utente)result)); 
+                response.put("userData", readyData((Utente)   result)); 
             }
             return ResponseEntity.ok(response);
         }

@@ -9,6 +9,8 @@ import jakarta.persistence.Entity;
 
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
@@ -30,8 +32,13 @@ import lombok.EqualsAndHashCode;
     @JsonSubTypes.Type(value = ImpiegatoStipendiato.class, name = "stipendiato")
 })
 public abstract class Impiegato extends Utente {
-    @ManyToMany(mappedBy = "impiegati")
-    private Set<OraLavorativa> oreLavorateAlMese;
-    public abstract double calcolaStipendioMensile();
+    @ManyToMany
+    @JoinTable(
+        name = "impiegato_turno",
+        joinColumns = @JoinColumn(name = "impiegato_id"),
+        inverseJoinColumns = @JoinColumn(name = "turno_lavorativo_id")
+    )
+    private Set<TurnoLavorativo> turni;
+
 
 }
