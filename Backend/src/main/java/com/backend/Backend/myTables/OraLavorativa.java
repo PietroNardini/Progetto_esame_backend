@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalTime;
 @Entity
 @Table(
@@ -40,6 +41,10 @@ public class OraLavorativa {
 
     private LocalTime fine;
    
+   public LocalDate getLocalDate() {
+        return data.toLocalDate();
+    }
+
    
 }
 

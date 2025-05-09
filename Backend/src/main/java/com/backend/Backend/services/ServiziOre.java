@@ -1,7 +1,10 @@
 package com.backend.Backend.services;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,20 +33,36 @@ public class ServiziOre {
     private ManagerRepository  managerRepository;
     @Autowired 
     private RepositoryAssociazioneImpiegatoOra associazioneImpiegatoOraRepository;
-    public List<OraLavorativa> getAllWorkingHourByMonth(String month) {
+    public List<OraLavorativa> getAllWorkingHours(String day,String month,String year) {
         try{
         List<OraLavorativa> allWorkingHours = oraLavorativaRepository.findAll();
-        List<OraLavorativa> filteredWorkingHours = new ArrayList<>();
-        if(month == null || month.isEmpty()) {
+        if(month == null && day==null && year==null) {//se non è specificato nulla
             return allWorkingHours;
         }
-        for (OraLavorativa oraLavorativa : allWorkingHours) {
-            if (oraLavorativa.getData().toString().contains(month)) {
-                filteredWorkingHours.add(oraLavorativa);
-            }
+        return allWorkingHours.stream()//scorro tutta la lista utilizzando una stream
+            .filter(oraLavorativa -> {//definisco e applico il filtro 
+                LocalDate data = oraLavorativa.getLocalDate();//per ogni ora lavorativa prendo la data
+                if(month != null && day != null && year != null) {//se sono specificati tutti i parametri
+                    return data.getDayOfMonth() == Integer.parseInt(day) && data.getMonthValue() == Integer.parseInt(month) && data.getYear() == Integer.parseInt(year);
+                } else if(month != null && year != null) {//se sono specificati solo mese e anno
+                    return data.getMonthValue() == Integer.parseInt(month) && data.getYear() == Integer.parseInt(year);
+                } else if(day != null && year != null) {//se sono specificati solo giorno e anno
+                    return data.getDayOfMonth() == Integer.parseInt(day) && data.getYear() == Integer.parseInt(year);
+                } else if(day != null && month != null) {//se sono specificati solo giorno e mese
+                    return data.getDayOfMonth() == Integer.parseInt(day) && data.getMonthValue() == Integer.parseInt(month);
+                } else if(year != null) {//se è specificato solo l'anno
+                    return data.getYear() == Integer.parseInt(year);
+                } else if(month != null) {//se è specificato solo il mese
+                    return data.getMonthValue() == Integer.parseInt(month);
+                } else if(day != null) {//se è specificato solo il giorno
+                    return data.getDayOfMonth() == Integer.parseInt(day);
+                }
+                return false;//se non è specificato nulla
+            })
+            .collect(Collectors.toList());//colleziono i risultati filtrati in una nuova lista (se è true lo metto nella lista)
         }
-        return filteredWorkingHours;
-    }
+        
+    
     catch(Exception e){
         System.out.println("Errore nel recupero delle ore lavorative: " + e.getMessage());
         return null;

@@ -16,6 +16,7 @@ import com.backend.Backend.myTables.Manager;
 import com.backend.Backend.myTables.PasswordResetToken;
 import com.backend.Backend.myTables.Utente;
 import com.backend.Backend.repositories.ImpiegatoPagatoOraRepository;
+import com.backend.Backend.repositories.ImpiegatoRepository;
 import com.backend.Backend.repositories.ImpiegatoStipendiatoRepository;
 import com.backend.Backend.repositories.ManagerRepository;
 import com.backend.Backend.repositories.RepositoryPasswordResetToken;
@@ -31,16 +32,17 @@ public class ServiziUtenti {
         private ImpiegatoPagatoOraRepository impiegatoPagatoOraRepository;
         @Autowired
         private RepositoryPasswordResetToken repositoryPasswordResetToken;
-    
+        @Autowired
+        private ImpiegatoRepository impiegatoRepository;
         @Autowired
         private ImpiegatoStipendiatoRepository impiegatoStipendiatoRepository;
         public String InsertManager(Manager manager) {
             try{
+                if(managerRepository.findByEmail(manager.getEmail()) != null) {
+                    return "Un Manager con questa email esiste già";
+                }
                 managerRepository.save(manager);
                 return "Manager inserito con successo";
-            }
-            catch(DataIntegrityViolationException e){
-                return "Un manager con questa email esiste già";
             }
             catch(Exception e){
                 return "Errore nell'inserimento del manager: " +e.getClass().getCanonicalName();
@@ -48,6 +50,9 @@ public class ServiziUtenti {
         }
         public String InsertImpiegato(Impiegato impiegato) {
             try{
+                if(impiegatoRepository.findById(impiegato.getId()) != null) {
+                    return "Un Impiegato con questo ID esiste già";
+                }
                 if(impiegato instanceof ImpiegatoPagatoOra) {
                     impiegatoPagatoOraRepository.save((ImpiegatoPagatoOra) impiegato);
                     return "Impiegato inserito con successo";

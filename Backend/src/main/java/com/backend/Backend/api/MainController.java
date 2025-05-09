@@ -322,11 +322,16 @@ public class MainController {
             return response;
         }
     }
-    @PostMapping("/GetAllWorkingHourByMonth")
-    public List<OraLavorativa> GetAllWorkingHourByMonth(@RequestBody Map<String,String> request) {
+    @PostMapping("/GetAllWorkingHours")
+    public List<OraLavorativa> GetAllWorkingHours(@RequestBody Map<String,String> request) {
         String month = request.get("month");
+        String day = request.get("day");
+        String year = request.get("year");
+        System.out.println("month: " + month);
+        System.out.println("day: " + day);
+        System.out.println("year: " + year);
         try{
-            return serviziOra.getAllWorkingHourByMonth(month);
+            return serviziOra.getAllWorkingHours(day,month,year);
         }
         catch(Exception e){
             System.out.println("Errore nel recupero delle ore lavorative: " + e.getMessage());

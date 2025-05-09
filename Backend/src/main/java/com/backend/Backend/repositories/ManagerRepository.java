@@ -9,5 +9,6 @@ import com.backend.Backend.myTables.Utente;
 
 public interface ManagerRepository extends JpaRepository<Manager, Long> {
     public List<Utente> findByDipartimento(String dipartimento); 
+    public List<Utente> findByEmail(String email); 
 
 }
