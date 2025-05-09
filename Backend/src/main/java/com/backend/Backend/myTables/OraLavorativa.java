@@ -3,13 +3,19 @@ package com.backend.Backend.myTables;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Date;
 import java.time.LocalTime;
-import com.backend.Backend.myTables.TipoOra;
 @Entity
-@Table(name = "ora_lavorativa")
+@Table(
+    name = "ora_lavorativa",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"data", "inizio", "fine"})
+    }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 @EqualsAndHashCode(onlyExplicitlyIncluded = true) // Use only explicitly included fields
 
 public class OraLavorativa {
@@ -22,6 +28,10 @@ public class OraLavorativa {
 
     @Column(nullable = false)
     @EqualsAndHashCode.Include // Include in hashCode and equals
+    private Date data;
+
+    @Column(nullable = false)
+    @EqualsAndHashCode.Include // Include in hashCode and equals
 
     private LocalTime inizio;
 
@@ -29,13 +39,7 @@ public class OraLavorativa {
     @EqualsAndHashCode.Include // Include in hashCode and equals
 
     private LocalTime fine;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @EqualsAndHashCode.Include // Include in hashCode and equals
-
-    private TipoOra tipo = TipoOra.NORMALE;
-    @ManyToOne
-    @JoinColumn(name = "turno_lavorativo_id", nullable = false)
-    private TurnoLavorativo turnoLavorativo;
+   
+   
 }
 

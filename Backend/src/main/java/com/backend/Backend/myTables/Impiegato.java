@@ -32,13 +32,7 @@ import lombok.EqualsAndHashCode;
     @JsonSubTypes.Type(value = ImpiegatoStipendiato.class, name = "stipendiato")
 })
 public abstract class Impiegato extends Utente {
-    @ManyToMany
-    @JoinTable(
-        name = "impiegato_turno",
-        joinColumns = @JoinColumn(name = "impiegato_id"),
-        inverseJoinColumns = @JoinColumn(name = "turno_lavorativo_id")
-    )
-    private Set<TurnoLavorativo> turni;
+    
 
 
 }

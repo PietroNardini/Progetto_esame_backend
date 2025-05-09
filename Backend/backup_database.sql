@@ -5,7 +5,7 @@
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.4
 
--- Started on 2025-05-08 19:00:47
+-- Started on 2025-05-09 12:05:15
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -20,25 +20,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 883 (class 1247 OID 17412)
--- Name: day_of_week; Type: TYPE; Schema: public; Owner: postgres
---
-
-CREATE TYPE public.day_of_week AS ENUM (
-    'MONDAY',
-    'TUESDAY',
-    'WEDNESDAY',
-    'THURSDAY',
-    'FRIDAY',
-    'SATURDAY',
-    'SUNDAY'
-);
-
-
-ALTER TYPE public.day_of_week OWNER TO postgres;
-
---
--- TOC entry 880 (class 1247 OID 17406)
+-- TOC entry 875 (class 1247 OID 17406)
 -- Name: tipo_ora; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -49,20 +31,6 @@ CREATE TYPE public.tipo_ora AS ENUM (
 
 
 ALTER TYPE public.tipo_ora OWNER TO postgres;
-
---
--- TOC entry 877 (class 1247 OID 17399)
--- Name: tipo_turno; Type: TYPE; Schema: public; Owner: postgres
---
-
-CREATE TYPE public.tipo_turno AS ENUM (
-    'MATTINA',
-    'POMERIGGIO',
-    'SERA'
-);
-
-
-ALTER TYPE public.tipo_turno OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -79,6 +47,24 @@ CREATE TABLE public.impiegato (
 
 
 ALTER TABLE public.impiegato OWNER TO postgres;
+
+--
+-- TOC entry 228 (class 1259 OID 17531)
+-- Name: impiegato_lavora_ora; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.impiegato_lavora_ora (
+    id_impiegato bigint NOT NULL,
+    id_ora_lavorativa bigint NOT NULL,
+    tipooralavorativa public.tipo_ora DEFAULT 'NORMALE'::public.tipo_ora NOT NULL,
+    tipo_ora_lavorativa character varying(255) NOT NULL,
+    idimpiegato bigint NOT NULL,
+    idoralavorativa bigint NOT NULL,
+    CONSTRAINT impiegato_lavora_ora_tipo_ora_lavorativa_check CHECK (((tipo_ora_lavorativa)::text = ANY ((ARRAY['NORMALE'::character varying, 'STRAORDINARIO'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.impiegato_lavora_ora OWNER TO postgres;
 
 --
 -- TOC entry 221 (class 1259 OID 17026)
@@ -107,19 +93,6 @@ CREATE TABLE public.impiegato_stipendiato (
 ALTER TABLE public.impiegato_stipendiato OWNER TO postgres;
 
 --
--- TOC entry 230 (class 1259 OID 17448)
--- Name: impiegato_turno; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.impiegato_turno (
-    turno_lavorativo_id bigint NOT NULL,
-    impiegato_id bigint NOT NULL
-);
-
-
-ALTER TABLE public.impiegato_turno OWNER TO postgres;
-
---
 -- TOC entry 222 (class 1259 OID 17036)
 -- Name: manager; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -133,28 +106,26 @@ CREATE TABLE public.manager (
 ALTER TABLE public.manager OWNER TO postgres;
 
 --
--- TOC entry 229 (class 1259 OID 17437)
+-- TOC entry 227 (class 1259 OID 17525)
 -- Name: ora_lavorativa; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.ora_lavorativa (
     id bigint NOT NULL,
-    tipo character varying(255) NOT NULL,
-    turno_lavorativo_id bigint NOT NULL,
-    fine time(6) without time zone NOT NULL,
-    inizio time(6) without time zone NOT NULL
+    data date NOT NULL,
+    inizio time without time zone NOT NULL,
+    fine time without time zone NOT NULL
 );
 
 
 ALTER TABLE public.ora_lavorativa OWNER TO postgres;
 
 --
--- TOC entry 228 (class 1259 OID 17436)
+-- TOC entry 226 (class 1259 OID 17524)
 -- Name: ora_lavorativa_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.ora_lavorativa_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -165,8 +136,8 @@ CREATE SEQUENCE public.ora_lavorativa_id_seq
 ALTER SEQUENCE public.ora_lavorativa_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4984 (class 0 OID 0)
--- Dependencies: 228
+-- TOC entry 4973 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: ora_lavorativa_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
@@ -205,7 +176,7 @@ CREATE SEQUENCE public.password_reset_token_id_seq
 ALTER SEQUENCE public.password_reset_token_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4985 (class 0 OID 0)
+-- TOC entry 4974 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: password_reset_token_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -227,45 +198,6 @@ CREATE SEQUENCE public.password_reset_token_seq
 
 
 ALTER SEQUENCE public.password_reset_token_seq OWNER TO postgres;
-
---
--- TOC entry 227 (class 1259 OID 17428)
--- Name: turno_lavorativo; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.turno_lavorativo (
-    id bigint NOT NULL,
-    tipo_turno character varying(255) NOT NULL,
-    data date NOT NULL
-);
-
-
-ALTER TABLE public.turno_lavorativo OWNER TO postgres;
-
---
--- TOC entry 226 (class 1259 OID 17427)
--- Name: turno_lavorativo_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.turno_lavorativo_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.turno_lavorativo_id_seq OWNER TO postgres;
-
---
--- TOC entry 4986 (class 0 OID 0)
--- Dependencies: 226
--- Name: turno_lavorativo_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.turno_lavorativo_id_seq OWNED BY public.turno_lavorativo.id;
-
 
 --
 -- TOC entry 218 (class 1259 OID 16996)
@@ -303,7 +235,7 @@ CREATE SEQUENCE public.utente_id_seq
 ALTER SEQUENCE public.utente_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4987 (class 0 OID 0)
+-- TOC entry 4975 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: utente_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -312,7 +244,7 @@ ALTER SEQUENCE public.utente_id_seq OWNED BY public.utente.id;
 
 
 --
--- TOC entry 4791 (class 2604 OID 17463)
+-- TOC entry 4779 (class 2604 OID 17528)
 -- Name: ora_lavorativa id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -320,7 +252,7 @@ ALTER TABLE ONLY public.ora_lavorativa ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
--- TOC entry 4789 (class 2604 OID 17202)
+-- TOC entry 4778 (class 2604 OID 17202)
 -- Name: password_reset_token id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -328,15 +260,7 @@ ALTER TABLE ONLY public.password_reset_token ALTER COLUMN id SET DEFAULT nextval
 
 
 --
--- TOC entry 4790 (class 2604 OID 17474)
--- Name: turno_lavorativo id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.turno_lavorativo ALTER COLUMN id SET DEFAULT nextval('public.turno_lavorativo_id_seq'::regclass);
-
-
---
--- TOC entry 4787 (class 2604 OID 17165)
+-- TOC entry 4776 (class 2604 OID 17165)
 -- Name: utente id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -344,7 +268,7 @@ ALTER TABLE ONLY public.utente ALTER COLUMN id SET DEFAULT nextval('public.utent
 
 
 --
--- TOC entry 4967 (class 0 OID 17006)
+-- TOC entry 4958 (class 0 OID 17006)
 -- Dependencies: 219
 -- Data for Name: impiegato; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -356,7 +280,17 @@ COPY public.impiegato (id) FROM stdin;
 
 
 --
--- TOC entry 4969 (class 0 OID 17026)
+-- TOC entry 4967 (class 0 OID 17531)
+-- Dependencies: 228
+-- Data for Name: impiegato_lavora_ora; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.impiegato_lavora_ora (id_impiegato, id_ora_lavorativa, tipooralavorativa, tipo_ora_lavorativa, idimpiegato, idoralavorativa) FROM stdin;
+\.
+
+
+--
+-- TOC entry 4960 (class 0 OID 17026)
 -- Dependencies: 221
 -- Data for Name: impiegato_pagato_ora; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -367,7 +301,7 @@ COPY public.impiegato_pagato_ora (id, paga_oraria) FROM stdin;
 
 
 --
--- TOC entry 4968 (class 0 OID 17016)
+-- TOC entry 4959 (class 0 OID 17016)
 -- Dependencies: 220
 -- Data for Name: impiegato_stipendiato; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -378,17 +312,7 @@ COPY public.impiegato_stipendiato (id, stipendio_mensile) FROM stdin;
 
 
 --
--- TOC entry 4978 (class 0 OID 17448)
--- Dependencies: 230
--- Data for Name: impiegato_turno; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.impiegato_turno (turno_lavorativo_id, impiegato_id) FROM stdin;
-\.
-
-
---
--- TOC entry 4970 (class 0 OID 17036)
+-- TOC entry 4961 (class 0 OID 17036)
 -- Dependencies: 222
 -- Data for Name: manager; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -401,110 +325,513 @@ COPY public.manager (id, stipendio) FROM stdin;
 
 
 --
--- TOC entry 4977 (class 0 OID 17437)
--- Dependencies: 229
+-- TOC entry 4966 (class 0 OID 17525)
+-- Dependencies: 227
 -- Data for Name: ora_lavorativa; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.ora_lavorativa (id, tipo, turno_lavorativo_id, fine, inizio) FROM stdin;
-22	NORMALE	22	22:00:00	18:00:00
-23	NORMALE	23	22:00:00	18:00:00
-24	NORMALE	24	22:00:00	18:00:00
-25	NORMALE	25	22:00:00	18:00:00
-26	NORMALE	26	22:00:00	18:00:00
-27	NORMALE	27	22:00:00	18:00:00
-28	NORMALE	28	22:00:00	18:00:00
-29	NORMALE	29	22:00:00	18:00:00
-30	NORMALE	30	22:00:00	18:00:00
-31	NORMALE	31	22:00:00	18:00:00
-32	NORMALE	32	22:00:00	18:00:00
-33	NORMALE	33	22:00:00	18:00:00
-34	NORMALE	34	22:00:00	18:00:00
-35	NORMALE	35	22:00:00	18:00:00
-36	NORMALE	36	22:00:00	18:00:00
-37	NORMALE	37	17:00:00	13:00:00
-38	NORMALE	38	17:00:00	13:00:00
-39	NORMALE	39	17:00:00	13:00:00
-40	NORMALE	40	17:00:00	13:00:00
-41	NORMALE	41	17:00:00	13:00:00
-42	NORMALE	42	17:00:00	13:00:00
-43	NORMALE	43	17:00:00	13:00:00
-44	NORMALE	44	17:00:00	13:00:00
-45	NORMALE	45	17:00:00	13:00:00
-46	NORMALE	46	17:00:00	13:00:00
-47	NORMALE	47	17:00:00	13:00:00
-48	NORMALE	48	17:00:00	13:00:00
-49	NORMALE	49	17:00:00	13:00:00
-50	NORMALE	50	17:00:00	13:00:00
-51	NORMALE	51	17:00:00	13:00:00
-52	NORMALE	52	17:00:00	13:00:00
-53	NORMALE	53	17:00:00	13:00:00
-54	NORMALE	54	17:00:00	13:00:00
-55	NORMALE	55	17:00:00	13:00:00
-56	NORMALE	56	17:00:00	13:00:00
-57	NORMALE	57	17:00:00	13:00:00
-58	NORMALE	58	17:00:00	13:00:00
-59	NORMALE	59	17:00:00	13:00:00
-60	NORMALE	60	17:00:00	13:00:00
-61	NORMALE	61	17:00:00	13:00:00
-62	NORMALE	62	17:00:00	13:00:00
-63	NORMALE	63	17:00:00	13:00:00
-64	NORMALE	64	17:00:00	13:00:00
-65	NORMALE	65	17:00:00	13:00:00
-66	NORMALE	66	17:00:00	13:00:00
-67	NORMALE	67	17:00:00	13:00:00
-68	NORMALE	68	22:00:00	18:00:00
-69	NORMALE	69	22:00:00	18:00:00
-70	NORMALE	70	22:00:00	18:00:00
-71	NORMALE	71	22:00:00	18:00:00
-72	NORMALE	72	12:00:00	08:00:00
-73	NORMALE	73	22:00:00	18:00:00
-74	NORMALE	74	12:00:00	08:00:00
-75	NORMALE	75	22:00:00	18:00:00
-76	NORMALE	76	12:00:00	08:00:00
-77	NORMALE	77	22:00:00	18:00:00
-78	NORMALE	78	12:00:00	08:00:00
-79	NORMALE	79	22:00:00	18:00:00
-80	NORMALE	80	22:00:00	18:00:00
-81	NORMALE	81	22:00:00	18:00:00
-82	NORMALE	82	22:00:00	18:00:00
-83	NORMALE	83	22:00:00	18:00:00
-84	NORMALE	84	22:00:00	18:00:00
-85	NORMALE	85	22:00:00	18:00:00
-86	NORMALE	86	22:00:00	18:00:00
-87	NORMALE	87	22:00:00	18:00:00
-88	NORMALE	88	12:00:00	08:00:00
-89	NORMALE	89	12:00:00	08:00:00
-90	NORMALE	90	12:00:00	08:00:00
-91	NORMALE	91	12:00:00	08:00:00
-92	NORMALE	92	12:00:00	08:00:00
-93	NORMALE	93	12:00:00	08:00:00
-94	NORMALE	94	12:00:00	08:00:00
-95	NORMALE	95	12:00:00	08:00:00
-96	NORMALE	96	12:00:00	08:00:00
-97	NORMALE	97	12:00:00	08:00:00
-98	NORMALE	98	12:00:00	08:00:00
-99	NORMALE	99	12:00:00	08:00:00
-100	NORMALE	100	12:00:00	08:00:00
-101	NORMALE	101	12:00:00	08:00:00
-102	NORMALE	102	12:00:00	08:00:00
-103	NORMALE	103	12:00:00	08:00:00
-104	NORMALE	104	12:00:00	08:00:00
-105	NORMALE	105	12:00:00	08:00:00
-106	NORMALE	106	12:00:00	08:00:00
-107	NORMALE	107	12:00:00	08:00:00
-108	NORMALE	108	12:00:00	08:00:00
-109	NORMALE	109	12:00:00	08:00:00
-110	NORMALE	110	12:00:00	08:00:00
-111	NORMALE	111	12:00:00	08:00:00
-112	NORMALE	112	12:00:00	08:00:00
-113	NORMALE	113	12:00:00	08:00:00
-114	NORMALE	114	12:00:00	08:00:00
+COPY public.ora_lavorativa (id, data, inizio, fine) FROM stdin;
+1	2025-05-01	08:00:00	09:00:00
+2	2025-05-01	09:00:00	10:00:00
+3	2025-05-01	10:00:00	11:00:00
+4	2025-05-01	11:00:00	12:00:00
+5	2025-05-01	12:00:00	13:00:00
+6	2025-05-01	13:00:00	14:00:00
+7	2025-05-01	14:00:00	15:00:00
+8	2025-05-01	15:00:00	16:00:00
+9	2025-05-01	16:00:00	17:00:00
+10	2025-05-01	17:00:00	18:00:00
+11	2025-05-01	18:00:00	19:00:00
+12	2025-05-01	19:00:00	20:00:00
+13	2025-05-01	20:00:00	21:00:00
+14	2025-05-01	21:00:00	22:00:00
+15	2025-05-01	22:00:00	23:00:00
+16	2025-05-01	23:00:00	00:00:00
+17	2025-05-02	08:00:00	09:00:00
+18	2025-05-02	09:00:00	10:00:00
+19	2025-05-02	10:00:00	11:00:00
+20	2025-05-02	11:00:00	12:00:00
+21	2025-05-02	12:00:00	13:00:00
+22	2025-05-02	13:00:00	14:00:00
+23	2025-05-02	14:00:00	15:00:00
+24	2025-05-02	15:00:00	16:00:00
+25	2025-05-02	16:00:00	17:00:00
+26	2025-05-02	17:00:00	18:00:00
+27	2025-05-02	18:00:00	19:00:00
+28	2025-05-02	19:00:00	20:00:00
+29	2025-05-02	20:00:00	21:00:00
+30	2025-05-02	21:00:00	22:00:00
+31	2025-05-02	22:00:00	23:00:00
+32	2025-05-02	23:00:00	00:00:00
+33	2025-05-03	08:00:00	09:00:00
+34	2025-05-03	09:00:00	10:00:00
+35	2025-05-03	10:00:00	11:00:00
+36	2025-05-03	11:00:00	12:00:00
+37	2025-05-03	12:00:00	13:00:00
+38	2025-05-03	13:00:00	14:00:00
+39	2025-05-03	14:00:00	15:00:00
+40	2025-05-03	15:00:00	16:00:00
+41	2025-05-03	16:00:00	17:00:00
+42	2025-05-03	17:00:00	18:00:00
+43	2025-05-03	18:00:00	19:00:00
+44	2025-05-03	19:00:00	20:00:00
+45	2025-05-03	20:00:00	21:00:00
+46	2025-05-03	21:00:00	22:00:00
+47	2025-05-03	22:00:00	23:00:00
+48	2025-05-03	23:00:00	00:00:00
+49	2025-05-04	08:00:00	09:00:00
+50	2025-05-04	09:00:00	10:00:00
+51	2025-05-04	10:00:00	11:00:00
+52	2025-05-04	11:00:00	12:00:00
+53	2025-05-04	12:00:00	13:00:00
+54	2025-05-04	13:00:00	14:00:00
+55	2025-05-04	14:00:00	15:00:00
+56	2025-05-04	15:00:00	16:00:00
+57	2025-05-04	16:00:00	17:00:00
+58	2025-05-04	17:00:00	18:00:00
+59	2025-05-04	18:00:00	19:00:00
+60	2025-05-04	19:00:00	20:00:00
+61	2025-05-04	20:00:00	21:00:00
+62	2025-05-04	21:00:00	22:00:00
+63	2025-05-04	22:00:00	23:00:00
+64	2025-05-04	23:00:00	00:00:00
+65	2025-05-05	08:00:00	09:00:00
+66	2025-05-05	09:00:00	10:00:00
+67	2025-05-05	10:00:00	11:00:00
+68	2025-05-05	11:00:00	12:00:00
+69	2025-05-05	12:00:00	13:00:00
+70	2025-05-05	13:00:00	14:00:00
+71	2025-05-05	14:00:00	15:00:00
+72	2025-05-05	15:00:00	16:00:00
+73	2025-05-05	16:00:00	17:00:00
+74	2025-05-05	17:00:00	18:00:00
+75	2025-05-05	18:00:00	19:00:00
+76	2025-05-05	19:00:00	20:00:00
+77	2025-05-05	20:00:00	21:00:00
+78	2025-05-05	21:00:00	22:00:00
+79	2025-05-05	22:00:00	23:00:00
+80	2025-05-05	23:00:00	00:00:00
+81	2025-05-06	08:00:00	09:00:00
+82	2025-05-06	09:00:00	10:00:00
+83	2025-05-06	10:00:00	11:00:00
+84	2025-05-06	11:00:00	12:00:00
+85	2025-05-06	12:00:00	13:00:00
+86	2025-05-06	13:00:00	14:00:00
+87	2025-05-06	14:00:00	15:00:00
+88	2025-05-06	15:00:00	16:00:00
+89	2025-05-06	16:00:00	17:00:00
+90	2025-05-06	17:00:00	18:00:00
+91	2025-05-06	18:00:00	19:00:00
+92	2025-05-06	19:00:00	20:00:00
+93	2025-05-06	20:00:00	21:00:00
+94	2025-05-06	21:00:00	22:00:00
+95	2025-05-06	22:00:00	23:00:00
+96	2025-05-06	23:00:00	00:00:00
+97	2025-05-07	08:00:00	09:00:00
+98	2025-05-07	09:00:00	10:00:00
+99	2025-05-07	10:00:00	11:00:00
+100	2025-05-07	11:00:00	12:00:00
+101	2025-05-07	12:00:00	13:00:00
+102	2025-05-07	13:00:00	14:00:00
+103	2025-05-07	14:00:00	15:00:00
+104	2025-05-07	15:00:00	16:00:00
+105	2025-05-07	16:00:00	17:00:00
+106	2025-05-07	17:00:00	18:00:00
+107	2025-05-07	18:00:00	19:00:00
+108	2025-05-07	19:00:00	20:00:00
+109	2025-05-07	20:00:00	21:00:00
+110	2025-05-07	21:00:00	22:00:00
+111	2025-05-07	22:00:00	23:00:00
+112	2025-05-07	23:00:00	00:00:00
+113	2025-05-08	08:00:00	09:00:00
+114	2025-05-08	09:00:00	10:00:00
+115	2025-05-08	10:00:00	11:00:00
+116	2025-05-08	11:00:00	12:00:00
+117	2025-05-08	12:00:00	13:00:00
+118	2025-05-08	13:00:00	14:00:00
+119	2025-05-08	14:00:00	15:00:00
+120	2025-05-08	15:00:00	16:00:00
+121	2025-05-08	16:00:00	17:00:00
+122	2025-05-08	17:00:00	18:00:00
+123	2025-05-08	18:00:00	19:00:00
+124	2025-05-08	19:00:00	20:00:00
+125	2025-05-08	20:00:00	21:00:00
+126	2025-05-08	21:00:00	22:00:00
+127	2025-05-08	22:00:00	23:00:00
+128	2025-05-08	23:00:00	00:00:00
+129	2025-05-09	08:00:00	09:00:00
+130	2025-05-09	09:00:00	10:00:00
+131	2025-05-09	10:00:00	11:00:00
+132	2025-05-09	11:00:00	12:00:00
+133	2025-05-09	12:00:00	13:00:00
+134	2025-05-09	13:00:00	14:00:00
+135	2025-05-09	14:00:00	15:00:00
+136	2025-05-09	15:00:00	16:00:00
+137	2025-05-09	16:00:00	17:00:00
+138	2025-05-09	17:00:00	18:00:00
+139	2025-05-09	18:00:00	19:00:00
+140	2025-05-09	19:00:00	20:00:00
+141	2025-05-09	20:00:00	21:00:00
+142	2025-05-09	21:00:00	22:00:00
+143	2025-05-09	22:00:00	23:00:00
+144	2025-05-09	23:00:00	00:00:00
+145	2025-05-10	08:00:00	09:00:00
+146	2025-05-10	09:00:00	10:00:00
+147	2025-05-10	10:00:00	11:00:00
+148	2025-05-10	11:00:00	12:00:00
+149	2025-05-10	12:00:00	13:00:00
+150	2025-05-10	13:00:00	14:00:00
+151	2025-05-10	14:00:00	15:00:00
+152	2025-05-10	15:00:00	16:00:00
+153	2025-05-10	16:00:00	17:00:00
+154	2025-05-10	17:00:00	18:00:00
+155	2025-05-10	18:00:00	19:00:00
+156	2025-05-10	19:00:00	20:00:00
+157	2025-05-10	20:00:00	21:00:00
+158	2025-05-10	21:00:00	22:00:00
+159	2025-05-10	22:00:00	23:00:00
+160	2025-05-10	23:00:00	00:00:00
+161	2025-05-11	08:00:00	09:00:00
+162	2025-05-11	09:00:00	10:00:00
+163	2025-05-11	10:00:00	11:00:00
+164	2025-05-11	11:00:00	12:00:00
+165	2025-05-11	12:00:00	13:00:00
+166	2025-05-11	13:00:00	14:00:00
+167	2025-05-11	14:00:00	15:00:00
+168	2025-05-11	15:00:00	16:00:00
+169	2025-05-11	16:00:00	17:00:00
+170	2025-05-11	17:00:00	18:00:00
+171	2025-05-11	18:00:00	19:00:00
+172	2025-05-11	19:00:00	20:00:00
+173	2025-05-11	20:00:00	21:00:00
+174	2025-05-11	21:00:00	22:00:00
+175	2025-05-11	22:00:00	23:00:00
+176	2025-05-11	23:00:00	00:00:00
+177	2025-05-12	08:00:00	09:00:00
+178	2025-05-12	09:00:00	10:00:00
+179	2025-05-12	10:00:00	11:00:00
+180	2025-05-12	11:00:00	12:00:00
+181	2025-05-12	12:00:00	13:00:00
+182	2025-05-12	13:00:00	14:00:00
+183	2025-05-12	14:00:00	15:00:00
+184	2025-05-12	15:00:00	16:00:00
+185	2025-05-12	16:00:00	17:00:00
+186	2025-05-12	17:00:00	18:00:00
+187	2025-05-12	18:00:00	19:00:00
+188	2025-05-12	19:00:00	20:00:00
+189	2025-05-12	20:00:00	21:00:00
+190	2025-05-12	21:00:00	22:00:00
+191	2025-05-12	22:00:00	23:00:00
+192	2025-05-12	23:00:00	00:00:00
+193	2025-05-13	08:00:00	09:00:00
+194	2025-05-13	09:00:00	10:00:00
+195	2025-05-13	10:00:00	11:00:00
+196	2025-05-13	11:00:00	12:00:00
+197	2025-05-13	12:00:00	13:00:00
+198	2025-05-13	13:00:00	14:00:00
+199	2025-05-13	14:00:00	15:00:00
+200	2025-05-13	15:00:00	16:00:00
+201	2025-05-13	16:00:00	17:00:00
+202	2025-05-13	17:00:00	18:00:00
+203	2025-05-13	18:00:00	19:00:00
+204	2025-05-13	19:00:00	20:00:00
+205	2025-05-13	20:00:00	21:00:00
+206	2025-05-13	21:00:00	22:00:00
+207	2025-05-13	22:00:00	23:00:00
+208	2025-05-13	23:00:00	00:00:00
+209	2025-05-14	08:00:00	09:00:00
+210	2025-05-14	09:00:00	10:00:00
+211	2025-05-14	10:00:00	11:00:00
+212	2025-05-14	11:00:00	12:00:00
+213	2025-05-14	12:00:00	13:00:00
+214	2025-05-14	13:00:00	14:00:00
+215	2025-05-14	14:00:00	15:00:00
+216	2025-05-14	15:00:00	16:00:00
+217	2025-05-14	16:00:00	17:00:00
+218	2025-05-14	17:00:00	18:00:00
+219	2025-05-14	18:00:00	19:00:00
+220	2025-05-14	19:00:00	20:00:00
+221	2025-05-14	20:00:00	21:00:00
+222	2025-05-14	21:00:00	22:00:00
+223	2025-05-14	22:00:00	23:00:00
+224	2025-05-14	23:00:00	00:00:00
+225	2025-05-15	08:00:00	09:00:00
+226	2025-05-15	09:00:00	10:00:00
+227	2025-05-15	10:00:00	11:00:00
+228	2025-05-15	11:00:00	12:00:00
+229	2025-05-15	12:00:00	13:00:00
+230	2025-05-15	13:00:00	14:00:00
+231	2025-05-15	14:00:00	15:00:00
+232	2025-05-15	15:00:00	16:00:00
+233	2025-05-15	16:00:00	17:00:00
+234	2025-05-15	17:00:00	18:00:00
+235	2025-05-15	18:00:00	19:00:00
+236	2025-05-15	19:00:00	20:00:00
+237	2025-05-15	20:00:00	21:00:00
+238	2025-05-15	21:00:00	22:00:00
+239	2025-05-15	22:00:00	23:00:00
+240	2025-05-15	23:00:00	00:00:00
+241	2025-05-16	08:00:00	09:00:00
+242	2025-05-16	09:00:00	10:00:00
+243	2025-05-16	10:00:00	11:00:00
+244	2025-05-16	11:00:00	12:00:00
+245	2025-05-16	12:00:00	13:00:00
+246	2025-05-16	13:00:00	14:00:00
+247	2025-05-16	14:00:00	15:00:00
+248	2025-05-16	15:00:00	16:00:00
+249	2025-05-16	16:00:00	17:00:00
+250	2025-05-16	17:00:00	18:00:00
+251	2025-05-16	18:00:00	19:00:00
+252	2025-05-16	19:00:00	20:00:00
+253	2025-05-16	20:00:00	21:00:00
+254	2025-05-16	21:00:00	22:00:00
+255	2025-05-16	22:00:00	23:00:00
+256	2025-05-16	23:00:00	00:00:00
+257	2025-05-17	08:00:00	09:00:00
+258	2025-05-17	09:00:00	10:00:00
+259	2025-05-17	10:00:00	11:00:00
+260	2025-05-17	11:00:00	12:00:00
+261	2025-05-17	12:00:00	13:00:00
+262	2025-05-17	13:00:00	14:00:00
+263	2025-05-17	14:00:00	15:00:00
+264	2025-05-17	15:00:00	16:00:00
+265	2025-05-17	16:00:00	17:00:00
+266	2025-05-17	17:00:00	18:00:00
+267	2025-05-17	18:00:00	19:00:00
+268	2025-05-17	19:00:00	20:00:00
+269	2025-05-17	20:00:00	21:00:00
+270	2025-05-17	21:00:00	22:00:00
+271	2025-05-17	22:00:00	23:00:00
+272	2025-05-17	23:00:00	00:00:00
+273	2025-05-18	08:00:00	09:00:00
+274	2025-05-18	09:00:00	10:00:00
+275	2025-05-18	10:00:00	11:00:00
+276	2025-05-18	11:00:00	12:00:00
+277	2025-05-18	12:00:00	13:00:00
+278	2025-05-18	13:00:00	14:00:00
+279	2025-05-18	14:00:00	15:00:00
+280	2025-05-18	15:00:00	16:00:00
+281	2025-05-18	16:00:00	17:00:00
+282	2025-05-18	17:00:00	18:00:00
+283	2025-05-18	18:00:00	19:00:00
+284	2025-05-18	19:00:00	20:00:00
+285	2025-05-18	20:00:00	21:00:00
+286	2025-05-18	21:00:00	22:00:00
+287	2025-05-18	22:00:00	23:00:00
+288	2025-05-18	23:00:00	00:00:00
+289	2025-05-19	08:00:00	09:00:00
+290	2025-05-19	09:00:00	10:00:00
+291	2025-05-19	10:00:00	11:00:00
+292	2025-05-19	11:00:00	12:00:00
+293	2025-05-19	12:00:00	13:00:00
+294	2025-05-19	13:00:00	14:00:00
+295	2025-05-19	14:00:00	15:00:00
+296	2025-05-19	15:00:00	16:00:00
+297	2025-05-19	16:00:00	17:00:00
+298	2025-05-19	17:00:00	18:00:00
+299	2025-05-19	18:00:00	19:00:00
+300	2025-05-19	19:00:00	20:00:00
+301	2025-05-19	20:00:00	21:00:00
+302	2025-05-19	21:00:00	22:00:00
+303	2025-05-19	22:00:00	23:00:00
+304	2025-05-19	23:00:00	00:00:00
+305	2025-05-20	08:00:00	09:00:00
+306	2025-05-20	09:00:00	10:00:00
+307	2025-05-20	10:00:00	11:00:00
+308	2025-05-20	11:00:00	12:00:00
+309	2025-05-20	12:00:00	13:00:00
+310	2025-05-20	13:00:00	14:00:00
+311	2025-05-20	14:00:00	15:00:00
+312	2025-05-20	15:00:00	16:00:00
+313	2025-05-20	16:00:00	17:00:00
+314	2025-05-20	17:00:00	18:00:00
+315	2025-05-20	18:00:00	19:00:00
+316	2025-05-20	19:00:00	20:00:00
+317	2025-05-20	20:00:00	21:00:00
+318	2025-05-20	21:00:00	22:00:00
+319	2025-05-20	22:00:00	23:00:00
+320	2025-05-20	23:00:00	00:00:00
+321	2025-05-21	08:00:00	09:00:00
+322	2025-05-21	09:00:00	10:00:00
+323	2025-05-21	10:00:00	11:00:00
+324	2025-05-21	11:00:00	12:00:00
+325	2025-05-21	12:00:00	13:00:00
+326	2025-05-21	13:00:00	14:00:00
+327	2025-05-21	14:00:00	15:00:00
+328	2025-05-21	15:00:00	16:00:00
+329	2025-05-21	16:00:00	17:00:00
+330	2025-05-21	17:00:00	18:00:00
+331	2025-05-21	18:00:00	19:00:00
+332	2025-05-21	19:00:00	20:00:00
+333	2025-05-21	20:00:00	21:00:00
+334	2025-05-21	21:00:00	22:00:00
+335	2025-05-21	22:00:00	23:00:00
+336	2025-05-21	23:00:00	00:00:00
+337	2025-05-22	08:00:00	09:00:00
+338	2025-05-22	09:00:00	10:00:00
+339	2025-05-22	10:00:00	11:00:00
+340	2025-05-22	11:00:00	12:00:00
+341	2025-05-22	12:00:00	13:00:00
+342	2025-05-22	13:00:00	14:00:00
+343	2025-05-22	14:00:00	15:00:00
+344	2025-05-22	15:00:00	16:00:00
+345	2025-05-22	16:00:00	17:00:00
+346	2025-05-22	17:00:00	18:00:00
+347	2025-05-22	18:00:00	19:00:00
+348	2025-05-22	19:00:00	20:00:00
+349	2025-05-22	20:00:00	21:00:00
+350	2025-05-22	21:00:00	22:00:00
+351	2025-05-22	22:00:00	23:00:00
+352	2025-05-22	23:00:00	00:00:00
+353	2025-05-23	08:00:00	09:00:00
+354	2025-05-23	09:00:00	10:00:00
+355	2025-05-23	10:00:00	11:00:00
+356	2025-05-23	11:00:00	12:00:00
+357	2025-05-23	12:00:00	13:00:00
+358	2025-05-23	13:00:00	14:00:00
+359	2025-05-23	14:00:00	15:00:00
+360	2025-05-23	15:00:00	16:00:00
+361	2025-05-23	16:00:00	17:00:00
+362	2025-05-23	17:00:00	18:00:00
+363	2025-05-23	18:00:00	19:00:00
+364	2025-05-23	19:00:00	20:00:00
+365	2025-05-23	20:00:00	21:00:00
+366	2025-05-23	21:00:00	22:00:00
+367	2025-05-23	22:00:00	23:00:00
+368	2025-05-23	23:00:00	00:00:00
+369	2025-05-24	08:00:00	09:00:00
+370	2025-05-24	09:00:00	10:00:00
+371	2025-05-24	10:00:00	11:00:00
+372	2025-05-24	11:00:00	12:00:00
+373	2025-05-24	12:00:00	13:00:00
+374	2025-05-24	13:00:00	14:00:00
+375	2025-05-24	14:00:00	15:00:00
+376	2025-05-24	15:00:00	16:00:00
+377	2025-05-24	16:00:00	17:00:00
+378	2025-05-24	17:00:00	18:00:00
+379	2025-05-24	18:00:00	19:00:00
+380	2025-05-24	19:00:00	20:00:00
+381	2025-05-24	20:00:00	21:00:00
+382	2025-05-24	21:00:00	22:00:00
+383	2025-05-24	22:00:00	23:00:00
+384	2025-05-24	23:00:00	00:00:00
+385	2025-05-25	08:00:00	09:00:00
+386	2025-05-25	09:00:00	10:00:00
+387	2025-05-25	10:00:00	11:00:00
+388	2025-05-25	11:00:00	12:00:00
+389	2025-05-25	12:00:00	13:00:00
+390	2025-05-25	13:00:00	14:00:00
+391	2025-05-25	14:00:00	15:00:00
+392	2025-05-25	15:00:00	16:00:00
+393	2025-05-25	16:00:00	17:00:00
+394	2025-05-25	17:00:00	18:00:00
+395	2025-05-25	18:00:00	19:00:00
+396	2025-05-25	19:00:00	20:00:00
+397	2025-05-25	20:00:00	21:00:00
+398	2025-05-25	21:00:00	22:00:00
+399	2025-05-25	22:00:00	23:00:00
+400	2025-05-25	23:00:00	00:00:00
+401	2025-05-26	08:00:00	09:00:00
+402	2025-05-26	09:00:00	10:00:00
+403	2025-05-26	10:00:00	11:00:00
+404	2025-05-26	11:00:00	12:00:00
+405	2025-05-26	12:00:00	13:00:00
+406	2025-05-26	13:00:00	14:00:00
+407	2025-05-26	14:00:00	15:00:00
+408	2025-05-26	15:00:00	16:00:00
+409	2025-05-26	16:00:00	17:00:00
+410	2025-05-26	17:00:00	18:00:00
+411	2025-05-26	18:00:00	19:00:00
+412	2025-05-26	19:00:00	20:00:00
+413	2025-05-26	20:00:00	21:00:00
+414	2025-05-26	21:00:00	22:00:00
+415	2025-05-26	22:00:00	23:00:00
+416	2025-05-26	23:00:00	00:00:00
+417	2025-05-27	08:00:00	09:00:00
+418	2025-05-27	09:00:00	10:00:00
+419	2025-05-27	10:00:00	11:00:00
+420	2025-05-27	11:00:00	12:00:00
+421	2025-05-27	12:00:00	13:00:00
+422	2025-05-27	13:00:00	14:00:00
+423	2025-05-27	14:00:00	15:00:00
+424	2025-05-27	15:00:00	16:00:00
+425	2025-05-27	16:00:00	17:00:00
+426	2025-05-27	17:00:00	18:00:00
+427	2025-05-27	18:00:00	19:00:00
+428	2025-05-27	19:00:00	20:00:00
+429	2025-05-27	20:00:00	21:00:00
+430	2025-05-27	21:00:00	22:00:00
+431	2025-05-27	22:00:00	23:00:00
+432	2025-05-27	23:00:00	00:00:00
+433	2025-05-28	08:00:00	09:00:00
+434	2025-05-28	09:00:00	10:00:00
+435	2025-05-28	10:00:00	11:00:00
+436	2025-05-28	11:00:00	12:00:00
+437	2025-05-28	12:00:00	13:00:00
+438	2025-05-28	13:00:00	14:00:00
+439	2025-05-28	14:00:00	15:00:00
+440	2025-05-28	15:00:00	16:00:00
+441	2025-05-28	16:00:00	17:00:00
+442	2025-05-28	17:00:00	18:00:00
+443	2025-05-28	18:00:00	19:00:00
+444	2025-05-28	19:00:00	20:00:00
+445	2025-05-28	20:00:00	21:00:00
+446	2025-05-28	21:00:00	22:00:00
+447	2025-05-28	22:00:00	23:00:00
+448	2025-05-28	23:00:00	00:00:00
+449	2025-05-29	08:00:00	09:00:00
+450	2025-05-29	09:00:00	10:00:00
+451	2025-05-29	10:00:00	11:00:00
+452	2025-05-29	11:00:00	12:00:00
+453	2025-05-29	12:00:00	13:00:00
+454	2025-05-29	13:00:00	14:00:00
+455	2025-05-29	14:00:00	15:00:00
+456	2025-05-29	15:00:00	16:00:00
+457	2025-05-29	16:00:00	17:00:00
+458	2025-05-29	17:00:00	18:00:00
+459	2025-05-29	18:00:00	19:00:00
+460	2025-05-29	19:00:00	20:00:00
+461	2025-05-29	20:00:00	21:00:00
+462	2025-05-29	21:00:00	22:00:00
+463	2025-05-29	22:00:00	23:00:00
+464	2025-05-29	23:00:00	00:00:00
+465	2025-05-30	08:00:00	09:00:00
+466	2025-05-30	09:00:00	10:00:00
+467	2025-05-30	10:00:00	11:00:00
+468	2025-05-30	11:00:00	12:00:00
+469	2025-05-30	12:00:00	13:00:00
+470	2025-05-30	13:00:00	14:00:00
+471	2025-05-30	14:00:00	15:00:00
+472	2025-05-30	15:00:00	16:00:00
+473	2025-05-30	16:00:00	17:00:00
+474	2025-05-30	17:00:00	18:00:00
+475	2025-05-30	18:00:00	19:00:00
+476	2025-05-30	19:00:00	20:00:00
+477	2025-05-30	20:00:00	21:00:00
+478	2025-05-30	21:00:00	22:00:00
+479	2025-05-30	22:00:00	23:00:00
+480	2025-05-30	23:00:00	00:00:00
+481	2025-05-31	08:00:00	09:00:00
+482	2025-05-31	09:00:00	10:00:00
+483	2025-05-31	10:00:00	11:00:00
+484	2025-05-31	11:00:00	12:00:00
+485	2025-05-31	12:00:00	13:00:00
+486	2025-05-31	13:00:00	14:00:00
+487	2025-05-31	14:00:00	15:00:00
+488	2025-05-31	15:00:00	16:00:00
+489	2025-05-31	16:00:00	17:00:00
+490	2025-05-31	17:00:00	18:00:00
+491	2025-05-31	18:00:00	19:00:00
+492	2025-05-31	19:00:00	20:00:00
+493	2025-05-31	20:00:00	21:00:00
+494	2025-05-31	21:00:00	22:00:00
+495	2025-05-31	22:00:00	23:00:00
+496	2025-05-31	23:00:00	00:00:00
 \.
 
 
 --
--- TOC entry 4972 (class 0 OID 17191)
+-- TOC entry 4963 (class 0 OID 17191)
 -- Dependencies: 224
 -- Data for Name: password_reset_token; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -515,110 +842,7 @@ COPY public.password_reset_token (id, token, user_id, expiry_date) FROM stdin;
 
 
 --
--- TOC entry 4975 (class 0 OID 17428)
--- Dependencies: 227
--- Data for Name: turno_lavorativo; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.turno_lavorativo (id, tipo_turno, data) FROM stdin;
-22	SERA	2025-05-11
-23	SERA	2025-05-10
-24	SERA	2025-05-09
-25	SERA	2025-05-08
-26	SERA	2025-05-15
-27	SERA	2025-05-14
-28	SERA	2025-05-13
-29	SERA	2025-05-12
-30	SERA	2025-05-03
-31	SERA	2025-05-02
-32	SERA	2025-05-01
-33	SERA	2025-05-07
-34	SERA	2025-05-06
-35	SERA	2025-05-05
-36	SERA	2025-05-04
-37	POMERIGGIO	2025-05-18
-38	POMERIGGIO	2025-05-17
-39	POMERIGGIO	2025-05-20
-40	POMERIGGIO	2025-05-19
-41	POMERIGGIO	2025-05-22
-42	POMERIGGIO	2025-05-21
-43	POMERIGGIO	2025-05-24
-44	POMERIGGIO	2025-05-23
-45	POMERIGGIO	2025-05-26
-46	POMERIGGIO	2025-05-25
-47	POMERIGGIO	2025-05-28
-48	POMERIGGIO	2025-05-27
-49	POMERIGGIO	2025-05-30
-50	POMERIGGIO	2025-05-29
-51	POMERIGGIO	2025-05-31
-52	POMERIGGIO	2025-05-02
-53	POMERIGGIO	2025-05-01
-54	POMERIGGIO	2025-05-04
-55	POMERIGGIO	2025-05-03
-56	POMERIGGIO	2025-05-06
-57	POMERIGGIO	2025-05-05
-58	POMERIGGIO	2025-05-08
-59	POMERIGGIO	2025-05-07
-60	POMERIGGIO	2025-05-10
-61	POMERIGGIO	2025-05-09
-62	POMERIGGIO	2025-05-12
-63	POMERIGGIO	2025-05-11
-64	POMERIGGIO	2025-05-14
-65	POMERIGGIO	2025-05-13
-66	POMERIGGIO	2025-05-16
-67	POMERIGGIO	2025-05-15
-68	SERA	2025-05-27
-69	SERA	2025-05-26
-70	SERA	2025-05-25
-71	SERA	2025-05-24
-72	MATTINA	2025-05-03
-73	SERA	2025-05-31
-74	MATTINA	2025-05-04
-75	SERA	2025-05-30
-76	MATTINA	2025-05-01
-77	SERA	2025-05-29
-78	MATTINA	2025-05-02
-79	SERA	2025-05-28
-80	SERA	2025-05-19
-81	SERA	2025-05-18
-82	SERA	2025-05-17
-83	SERA	2025-05-16
-84	SERA	2025-05-23
-85	SERA	2025-05-22
-86	SERA	2025-05-21
-87	SERA	2025-05-20
-88	MATTINA	2025-05-15
-89	MATTINA	2025-05-16
-90	MATTINA	2025-05-13
-91	MATTINA	2025-05-14
-92	MATTINA	2025-05-19
-93	MATTINA	2025-05-20
-94	MATTINA	2025-05-17
-95	MATTINA	2025-05-18
-96	MATTINA	2025-05-07
-97	MATTINA	2025-05-08
-98	MATTINA	2025-05-05
-99	MATTINA	2025-05-06
-100	MATTINA	2025-05-11
-101	MATTINA	2025-05-12
-102	MATTINA	2025-05-09
-103	MATTINA	2025-05-10
-104	MATTINA	2025-05-31
-105	MATTINA	2025-05-29
-106	MATTINA	2025-05-30
-107	MATTINA	2025-05-23
-108	MATTINA	2025-05-24
-109	MATTINA	2025-05-21
-110	MATTINA	2025-05-22
-111	MATTINA	2025-05-27
-112	MATTINA	2025-05-28
-113	MATTINA	2025-05-25
-114	MATTINA	2025-05-26
-\.
-
-
---
--- TOC entry 4966 (class 0 OID 16996)
+-- TOC entry 4957 (class 0 OID 16996)
 -- Dependencies: 218
 -- Data for Name: utente; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -633,16 +857,16 @@ COPY public.utente (id, email, password, nome, cognome, telefono, dipartimento, 
 
 
 --
--- TOC entry 4988 (class 0 OID 0)
--- Dependencies: 228
+-- TOC entry 4976 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: ora_lavorativa_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.ora_lavorativa_id_seq', 114, true);
+SELECT pg_catalog.setval('public.ora_lavorativa_id_seq', 497, true);
 
 
 --
--- TOC entry 4989 (class 0 OID 0)
+-- TOC entry 4977 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: password_reset_token_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -651,7 +875,7 @@ SELECT pg_catalog.setval('public.password_reset_token_id_seq', 1, false);
 
 
 --
--- TOC entry 4990 (class 0 OID 0)
+-- TOC entry 4978 (class 0 OID 0)
 -- Dependencies: 225
 -- Name: password_reset_token_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -660,16 +884,7 @@ SELECT pg_catalog.setval('public.password_reset_token_seq', 51, true);
 
 
 --
--- TOC entry 4991 (class 0 OID 0)
--- Dependencies: 226
--- Name: turno_lavorativo_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.turno_lavorativo_id_seq', 114, true);
-
-
---
--- TOC entry 4992 (class 0 OID 0)
+-- TOC entry 4979 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: utente_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -678,7 +893,16 @@ SELECT pg_catalog.setval('public.utente_id_seq', 10, true);
 
 
 --
--- TOC entry 4801 (class 2606 OID 17117)
+-- TOC entry 4803 (class 2606 OID 17536)
+-- Name: impiegato_lavora_ora impiegato_lavora_ora_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.impiegato_lavora_ora
+    ADD CONSTRAINT impiegato_lavora_ora_pkey PRIMARY KEY (id_impiegato, id_ora_lavorativa);
+
+
+--
+-- TOC entry 4791 (class 2606 OID 17117)
 -- Name: impiegato_pagato_ora impiegato_pagato_ora_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -687,7 +911,7 @@ ALTER TABLE ONLY public.impiegato_pagato_ora
 
 
 --
--- TOC entry 4797 (class 2606 OID 17069)
+-- TOC entry 4787 (class 2606 OID 17069)
 -- Name: impiegato impiegato_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -696,7 +920,7 @@ ALTER TABLE ONLY public.impiegato
 
 
 --
--- TOC entry 4799 (class 2606 OID 17128)
+-- TOC entry 4789 (class 2606 OID 17128)
 -- Name: impiegato_stipendiato impiegato_stipendiato_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -705,16 +929,7 @@ ALTER TABLE ONLY public.impiegato_stipendiato
 
 
 --
--- TOC entry 4811 (class 2606 OID 17452)
--- Name: impiegato_turno impiegato_turno_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.impiegato_turno
-    ADD CONSTRAINT impiegato_turno_pkey PRIMARY KEY (turno_lavorativo_id, impiegato_id);
-
-
---
--- TOC entry 4803 (class 2606 OID 17143)
+-- TOC entry 4793 (class 2606 OID 17143)
 -- Name: manager manager_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -723,7 +938,7 @@ ALTER TABLE ONLY public.manager
 
 
 --
--- TOC entry 4809 (class 2606 OID 17465)
+-- TOC entry 4797 (class 2606 OID 17530)
 -- Name: ora_lavorativa ora_lavorativa_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -732,7 +947,7 @@ ALTER TABLE ONLY public.ora_lavorativa
 
 
 --
--- TOC entry 4805 (class 2606 OID 17204)
+-- TOC entry 4795 (class 2606 OID 17204)
 -- Name: password_reset_token password_reset_token_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -741,16 +956,25 @@ ALTER TABLE ONLY public.password_reset_token
 
 
 --
--- TOC entry 4807 (class 2606 OID 17476)
--- Name: turno_lavorativo turno_lavorativo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4799 (class 2606 OID 17551)
+-- Name: ora_lavorativa ukiy1brfe8agck642buu5vaepgi; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.turno_lavorativo
-    ADD CONSTRAINT turno_lavorativo_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.ora_lavorativa
+    ADD CONSTRAINT ukiy1brfe8agck642buu5vaepgi UNIQUE (data, inizio, fine);
 
 
 --
--- TOC entry 4793 (class 2606 OID 17005)
+-- TOC entry 4801 (class 2606 OID 17548)
+-- Name: ora_lavorativa unique_data_inizio_fine; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ora_lavorativa
+    ADD CONSTRAINT unique_data_inizio_fine UNIQUE (data, inizio, fine);
+
+
+--
+-- TOC entry 4783 (class 2606 OID 17005)
 -- Name: utente utente_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -759,7 +983,7 @@ ALTER TABLE ONLY public.utente
 
 
 --
--- TOC entry 4795 (class 2606 OID 17167)
+-- TOC entry 4785 (class 2606 OID 17167)
 -- Name: utente utente_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -768,34 +992,7 @@ ALTER TABLE ONLY public.utente
 
 
 --
--- TOC entry 4818 (class 2606 OID 17458)
--- Name: impiegato_turno fk_impiegato; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.impiegato_turno
-    ADD CONSTRAINT fk_impiegato FOREIGN KEY (impiegato_id) REFERENCES public.impiegato(id) ON DELETE CASCADE;
-
-
---
--- TOC entry 4819 (class 2606 OID 17482)
--- Name: impiegato_turno fk_turno; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.impiegato_turno
-    ADD CONSTRAINT fk_turno FOREIGN KEY (turno_lavorativo_id) REFERENCES public.turno_lavorativo(id) ON DELETE CASCADE;
-
-
---
--- TOC entry 4817 (class 2606 OID 17477)
--- Name: ora_lavorativa fk_turno_lavorativo; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.ora_lavorativa
-    ADD CONSTRAINT fk_turno_lavorativo FOREIGN KEY (turno_lavorativo_id) REFERENCES public.turno_lavorativo(id) ON DELETE CASCADE;
-
-
---
--- TOC entry 4816 (class 2606 OID 17197)
+-- TOC entry 4808 (class 2606 OID 17197)
 -- Name: password_reset_token fk_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -804,7 +1001,7 @@ ALTER TABLE ONLY public.password_reset_token
 
 
 --
--- TOC entry 4812 (class 2606 OID 17168)
+-- TOC entry 4804 (class 2606 OID 17168)
 -- Name: impiegato impiegato_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -813,7 +1010,25 @@ ALTER TABLE ONLY public.impiegato
 
 
 --
--- TOC entry 4814 (class 2606 OID 17118)
+-- TOC entry 4809 (class 2606 OID 17537)
+-- Name: impiegato_lavora_ora impiegato_lavora_ora_id_impiegato_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.impiegato_lavora_ora
+    ADD CONSTRAINT impiegato_lavora_ora_id_impiegato_fkey FOREIGN KEY (id_impiegato) REFERENCES public.impiegato(id);
+
+
+--
+-- TOC entry 4810 (class 2606 OID 17542)
+-- Name: impiegato_lavora_ora impiegato_lavora_ora_id_ora_lavorativa_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.impiegato_lavora_ora
+    ADD CONSTRAINT impiegato_lavora_ora_id_ora_lavorativa_fkey FOREIGN KEY (id_ora_lavorativa) REFERENCES public.ora_lavorativa(id);
+
+
+--
+-- TOC entry 4806 (class 2606 OID 17118)
 -- Name: impiegato_pagato_ora impiegato_pagato_ora_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -822,7 +1037,7 @@ ALTER TABLE ONLY public.impiegato_pagato_ora
 
 
 --
--- TOC entry 4813 (class 2606 OID 17129)
+-- TOC entry 4805 (class 2606 OID 17129)
 -- Name: impiegato_stipendiato impiegato_stipendiato_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -831,7 +1046,7 @@ ALTER TABLE ONLY public.impiegato_stipendiato
 
 
 --
--- TOC entry 4815 (class 2606 OID 17173)
+-- TOC entry 4807 (class 2606 OID 17173)
 -- Name: manager manager_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -839,7 +1054,7 @@ ALTER TABLE ONLY public.manager
     ADD CONSTRAINT manager_id_fkey FOREIGN KEY (id) REFERENCES public.utente(id);
 
 
--- Completed on 2025-05-08 19:00:47
+-- Completed on 2025-05-09 12:05:16
 
 --
 -- PostgreSQL database dump complete
