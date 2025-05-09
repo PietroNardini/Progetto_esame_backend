@@ -323,6 +323,33 @@ public class MainController {
         }
     }
     @PostMapping("/GetAllWorkingHours")
+    /*ESEMPIO CHIAMATA 
+         * POST http://localhost:8080/api/GetAllWorkingHours
+         * {
+            "month": "10",
+            "day": "15",
+            "year": "2023"
+            }
+         oppure 
+            * {
+                "month": "10",
+                "year": "2023"
+                }
+            oppure
+            * {
+                "day": "15",
+                "year": "2023"
+                }
+            oppure
+            * {
+                "day": "15",
+                "month": "10"
+            }
+            oppure
+        {
+            
+        }
+    */
     public List<OraLavorativa> GetAllWorkingHours(@RequestBody Map<String,String> request) {
         String month = request.get("month");
         String day = request.get("day");
