@@ -9,29 +9,23 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "ImpiegatoLavoraOra")
 public class ImpiegatoLavoraOra {
-
     @EmbeddedId
-    private ImpiegatoLavoraOraId id = new ImpiegatoLavoraOraId();
-
-    @ManyToOne
-    @MapsId("idImpiegato") 
-    @JoinColumn(name = "idImpiegato", nullable = false)
-    private Impiegato impiegato;
-
-    @ManyToOne
-    @MapsId("idOraLavorativa") 
-    @JoinColumn(name = "idOraLavorativa", nullable = false)
-    private OraLavorativa oraLavorativa;
-
+    private ImpiegatoLavoraOraId id ;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, name="tipooralavorativa")
     private TipoOra tipoOraLavorativa = TipoOra.NORMALE;
+    public ImpiegatoLavoraOra(Impiegato impiegato, OraLavorativa oraLavorativa, TipoOra tipoOraLavorativa) {
+        this.tipoOraLavorativa = tipoOraLavorativa;
+        this.id = new ImpiegatoLavoraOraId(impiegato.getId(), oraLavorativa.getId());
+    }
 }

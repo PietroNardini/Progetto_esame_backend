@@ -1,5 +1,6 @@
 package com.backend.Backend.api;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,11 +23,14 @@ import com.backend.Backend.myTables.Impiegato;
 
 import com.backend.Backend.myTables.Manager;
 import com.backend.Backend.myTables.OraLavorativa;
+import com.backend.Backend.myTables.TipoOra;
 import com.backend.Backend.myTables.Utente;
+import com.backend.Backend.services.ServiziOre;
 import com.backend.Backend.services.ServiziUtenti;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.persistence.Id;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -39,6 +43,8 @@ public class MainController {
         private Environment env;
         @Autowired
         private JavaMailSender mailSender;
+        @Autowired
+        private ServiziOre serviziOra;
         public  List<Map<String,String>> readyData(List<Utente> utenti) {
             List<Map<String,String>> data = new ArrayList<>();
             for(Utente result : utenti){
@@ -284,6 +290,47 @@ public class MainController {
             System.out.println("Error changing password: " + e.getMessage());
             response.put("error", "Failed to change password");
             return ResponseEntity.badRequest().body(response);
+        }
+    }
+  @PostMapping("/AssegnaOre")
+  public Map<String,String> AssegnaOre(@RequestBody Map<String,String> request) {
+        Map<String, String> response = new HashMap<>();
+        if(request.get("Id_Ora") == null || request.get("email") == null) {
+            response.put("error", "Missing required fields");
+            return response;
+        }
+        Long Id_Ora = Long.parseLong(request.get("Id_Ora"));
+        String email_Impiegato =request.get("email");
+        TipoOra tipoOra=TipoOra.NORMALE;
+        if(request.get("tipoOra") !=null){
+           if(request.get("tipoOra").equals("straordinario")){
+                tipoOra= TipoOra.STRAORDINARIO;
+            }
+        }
+        try{
+            String result = serviziOra.AssegnaOre(Id_Ora, email_Impiegato, tipoOra);
+            response.put("message", result);
+            return response;
+        }
+        catch (NumberFormatException e) {
+            response.put("error", "Invalid number format for Id_Ora or Id_Impiegato");
+            return response;
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            response.put("error", "Failed to save the record");
+            return response;
+        }
+    }
+    @PostMapping("/GetAllWorkingHourByMonth")
+    public List<OraLavorativa> GetAllWorkingHourByMonth(@RequestBody Map<String,String> request) {
+        String month = request.get("month");
+        try{
+            return serviziOra.getAllWorkingHourByMonth(month);
+        }
+        catch(Exception e){
+            System.out.println("Errore nel recupero delle ore lavorative: " + e.getMessage());
+            return null;
         }
     }
 }
