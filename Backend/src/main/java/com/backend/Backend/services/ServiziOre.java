@@ -68,19 +68,19 @@ public class ServiziOre {
         return null;
     }
     }
-    public String AssegnaOre(Long Id_Ora,String email,TipoOra tipoOra){
+    public String AssegnaOre(Long Id_Ora,Long id,TipoOra tipoOra){
         try{
             OraLavorativa oraLavorativa = oraLavorativaRepository.findById(Id_Ora).orElse(null);
-            Impiegato impiegato = impiegatoRepository.findByEmail(email).orElse(null);
+            Impiegato impiegato = impiegatoRepository.findById(id).orElse(null);
             if(impiegato == null){
-                return "impiegato non trovato con questa email";
+                return "impiegato non trovato con questo id";
             }
             if(oraLavorativa == null){
                 return "Ora lavorativa non trovata";
             }
             ImpiegatoLavoraOra associazioneImpiegatoOra = new ImpiegatoLavoraOra(impiegato, oraLavorativa, tipoOra);
             if(associazioneImpiegatoOraRepository.existsById(new ImpiegatoLavoraOraId(impiegato.getId(), oraLavorativa.getId()))==true){
-                return "Associazione già esistente";
+                return "Questa ora è già stata assegnata all'impiegato";
             }
             
             associazioneImpiegatoOraRepository.save(associazioneImpiegatoOra);
@@ -88,6 +88,28 @@ public class ServiziOre {
         }
         catch(Exception e){
             return "Errore nell'assegnazione delle ore: " + e.getMessage();
+        }
+    }
+    public List<OraLavorativa> GetAllWorkingHoursByImpiegato(Long id){
+        try{
+            Impiegato impiegato = impiegatoRepository.findById(id).orElse(null);
+            if(impiegato == null){
+                System.out.println("Impiegato non trovato con questo id");
+                return null;
+            }
+            List<ImpiegatoLavoraOra> associazioni = associazioneImpiegatoOraRepository.findById_IdImpiegato(impiegato.getId());
+            List<OraLavorativa> oreLavorative = new ArrayList<>();
+            for (ImpiegatoLavoraOra associazione : associazioni) {
+                OraLavorativa oraLavorativa = oraLavorativaRepository.findById(associazione.getId().getIdOraLavorativa()).orElse(null);
+                if (oraLavorativa != null) {
+                    oreLavorative.add(oraLavorativa);
+                }
+            }
+            return oreLavorative;
+        }
+        catch (Exception e) {
+            System.out.println("Errore nel recupero delle ore lavorative per l'impiegato: " + e.getMessage());
+            return null;
         }
     }
 }

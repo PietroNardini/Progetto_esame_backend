@@ -292,36 +292,7 @@ public class MainController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-  @PostMapping("/AssegnaOre")
-  public Map<String,String> AssegnaOre(@RequestBody Map<String,String> request) {
-        Map<String, String> response = new HashMap<>();
-        if(request.get("Id_Ora") == null || request.get("email") == null) {
-            response.put("error", "Missing required fields");
-            return response;
-        }
-        Long Id_Ora = Long.parseLong(request.get("Id_Ora"));
-        String email_Impiegato =request.get("email");
-        TipoOra tipoOra=TipoOra.NORMALE;
-        if(request.get("tipoOra") !=null){
-           if(request.get("tipoOra").equals("straordinario")){
-                tipoOra= TipoOra.STRAORDINARIO;
-            }
-        }
-        try{
-            String result = serviziOra.AssegnaOre(Id_Ora, email_Impiegato, tipoOra);
-            response.put("message", result);
-            return response;
-        }
-        catch (NumberFormatException e) {
-            response.put("error", "Invalid number format for Id_Ora or Id_Impiegato");
-            return response;
-        }
-        catch (Exception e) {
-            System.out.println(e.getMessage());
-            response.put("error", "Failed to save the record");
-            return response;
-        }
-    }
+   
     @PostMapping("/GetAllWorkingHours")
     /*ESEMPIO CHIAMATA 
          * POST http://localhost:8080/api/GetAllWorkingHours
@@ -360,6 +331,114 @@ public class MainController {
         try{
             return serviziOra.getAllWorkingHours(day,month,year);
         }
+        catch(Exception e){
+            System.out.println("Errore nel recupero delle ore lavorative: " + e.getMessage());
+            return null;
+        }
+    }
+     /* Esempio chiamata
+     * POST http://localhost:8080/api/AssegnaSingolaOra
+     * {
+            "Id_Ora": 1,
+            "Id_Impiegato": "7",
+            "tipoOra": "straordinario"
+    }
+     */
+  @PostMapping("/AssegnaSingolaOra")
+  public Map<String,String> AssegnaOra(@RequestBody Map<String,String> request) {
+        Map<String, String> response = new HashMap<>();
+        if(request.get("Id_Ora") == null || request.get("Id_Impiegato") == null) {
+            response.put("error", "Missing required fields");
+            return response;
+        }
+        Long Id_Ora = Long.parseLong(request.get("Id_Ora"));
+        Long id =Long.parseLong(request.get("Id_Impiegato"));
+        TipoOra tipoOra=TipoOra.NORMALE;
+        if(request.get("tipoOra") !=null){
+           if(request.get("tipoOra").equals("straordinario")){
+                tipoOra= TipoOra.STRAORDINARIO;
+            }
+        }
+        try{
+            String result = serviziOra.AssegnaOre(Id_Ora, id, tipoOra);
+            response.put("message", result);
+            return response;
+        }
+        catch (NumberFormatException e) {
+            response.put("error", "Invalid number format for Id_Ora or Id_Impiegato");
+            return response;
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            response.put("error", "Failed to save the record");
+            return response;
+        }
+    }
+    /*ESEMPIO CHIAMATA
+     * POST http://localhost:8080/api/AssegnaOre
+     * {
+     * "Lista_Id_Ore": [1, 2, 3],
+     *  "Lista_Id_Impiegati": [1, 7, 9]
+     * }
+     */
+   
+    @PostMapping("/AssegnaOre")
+    public Map<String, String> AssegnaOre(@RequestBody Map<String, Object> request) {
+    Map<String, String> response = new HashMap<>();
+    if (request.get("Lista_Id_Ore") == null || request.get("Lista_Id_Impiegati") == null) {
+        response.put("error", "Missing required fields");
+        return response;
+    }
+    try {
+        @SuppressWarnings("unchecked")
+        List<Integer> ids_Ore_AsIntegers = (List<Integer>) request.get("Lista_Id_Ore");
+        List<Long> Id_Ore = ids_Ore_AsIntegers.stream()
+                                      .map(Integer::longValue) 
+                                      .toList();
+        @SuppressWarnings("unchecked")
+        List<Integer> ids_Impiegati_AsIntegers = (List<Integer>) request.get("Lista_Id_Impiegati");
+        List<Long> Ids_Impiegato = ids_Impiegati_AsIntegers.stream()
+                            .map(Integer::longValue) 
+                            .toList();        
+        TipoOra tipoOra = TipoOra.NORMALE;
+        if (request.get("tipoOra") != null && request.get("tipoOra").toString().equalsIgnoreCase("straordinario")) {
+            tipoOra = TipoOra.STRAORDINARIO;
+        }
+        String result = "";
+
+        for (Long id_Impiegato : Ids_Impiegato) {
+            for (Long Id_Ora : Id_Ore) {
+            result += "\n" + serviziOra.AssegnaOre(Id_Ora, id_Impiegato, tipoOra);
+            }
+        }
+        response.put("message", result);
+        return response;
+    } catch (NumberFormatException e) {
+        response.put("error", "Invalid number format for Id_Ora or IDs");
+        return response;
+    } catch (Exception e) {
+        System.out.println(e.getMessage());
+        response.put("error", "Failed to assign the hours");
+        return response;
+    }
+    }
+    /*ESEMPIO CHIAMATA
+     *  POST http://localhost:8080/api/GetAllWorkingHoursByImpiegato
+     * {
+     * "Id_Impiegato": "7"
+     * }
+     */
+    @PostMapping("/GetAllWorkingHoursByImpiegato")
+    public List<OraLavorativa> GetAllWorkingHoursByImpiegato(@RequestBody Map<String,String> request) {
+        try{
+            Long id = Long.parseLong(request.get("Id_Impiegato"));
+           
+            return serviziOra.GetAllWorkingHoursByImpiegato(id);
+        }
+        catch (NumberFormatException e) {
+            System.out.println( "Invalid number format for Id_Ora or IDs");
+            return null;
+        } 
         catch(Exception e){
             System.out.println("Errore nel recupero delle ore lavorative: " + e.getMessage());
             return null;
