@@ -3,7 +3,11 @@ package com.backend.Backend.services;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,55 +65,78 @@ public class ServiziOre {
             })
             .collect(Collectors.toList());//colleziono i risultati filtrati in una nuova lista (se è true lo metto nella lista)
         }
-        
-    
     catch(Exception e){
         System.out.println("Errore nel recupero delle ore lavorative: " + e.getMessage());
         return null;
     }
     }
-    public String AssegnaOre(Long Id_Ora,Long id,TipoOra tipoOra){
-        try{
-            OraLavorativa oraLavorativa = oraLavorativaRepository.findById(Id_Ora).orElse(null);
-            Impiegato impiegato = impiegatoRepository.findById(id).orElse(null);
-            if(impiegato == null){
-                return "impiegato non trovato con questo id";
-            }
-            if(oraLavorativa == null){
-                return "Ora lavorativa non trovata";
-            }
-            ImpiegatoLavoraOra associazioneImpiegatoOra = new ImpiegatoLavoraOra(impiegato, oraLavorativa, tipoOra);
-            if(associazioneImpiegatoOraRepository.existsById(new ImpiegatoLavoraOraId(impiegato.getId(), oraLavorativa.getId()))==true){
-                return "Questa ora è già stata assegnata all'impiegato";
-            }
-            
-            associazioneImpiegatoOraRepository.save(associazioneImpiegatoOra);
-            return "Ore assegnate con successo";
+    public String assegnaOre(List<Long> idOre, List<Long> idImpiegati, TipoOra tipoOra) {
+    try {
+        List<Impiegato> impiegati = impiegatoRepository.findAllById(idImpiegati);
+        List<OraLavorativa> ore = oraLavorativaRepository.findAllById(idOre);
+        if (impiegati.size() != idImpiegati.size()) {
+            return "Alcuni impiegati non sono stati trovati";
         }
-        catch(Exception e){
-            return "Errore nell'assegnazione delle ore: " + e.getMessage();
+        if (ore.size() != idOre.size()) {
+            return "Alcune ore lavorative non sono state trovate";
         }
-    }
-    public List<OraLavorativa> GetAllWorkingHoursByImpiegato(Long id){
-        try{
-            Impiegato impiegato = impiegatoRepository.findById(id).orElse(null);
-            if(impiegato == null){
-                System.out.println("Impiegato non trovato con questo id");
-                return null;
+        Set<ImpiegatoLavoraOraId> idDaAssegnare = new HashSet<>();
+        for (Impiegato impiegato : impiegati) {
+            for (OraLavorativa ora : ore) {
+                idDaAssegnare.add(new ImpiegatoLavoraOraId(impiegato.getId(), ora.getId()));//creo le id delle associzioni da creare usando l'id dell'impiegato e l'id dell'ora lavorativa
             }
-            List<ImpiegatoLavoraOra> associazioni = associazioneImpiegatoOraRepository.findById_IdImpiegato(impiegato.getId());
-            List<OraLavorativa> oreLavorative = new ArrayList<>();
-            for (ImpiegatoLavoraOra associazione : associazioni) {
-                OraLavorativa oraLavorativa = oraLavorativaRepository.findById(associazione.getId().getIdOraLavorativa()).orElse(null);
-                if (oraLavorativa != null) {
-                    oreLavorative.add(oraLavorativa);
+        }
+        List<ImpiegatoLavoraOra> associazioniEsistenti = associazioneImpiegatoOraRepository.findAllById(idDaAssegnare);//trovo tutte le associazioni esistenti
+        Set<ImpiegatoLavoraOraId> idEsistenti = associazioniEsistenti.stream()//trovo tutte le associazioni esistenti
+                .map(ImpiegatoLavoraOra::getId)
+                .collect(Collectors.toSet());
+        List<ImpiegatoLavoraOra> nuoveAssociazioni = new ArrayList<>();
+        for (Impiegato impiegato : impiegati) {
+            for (OraLavorativa ora : ore) {
+                ImpiegatoLavoraOraId id = new ImpiegatoLavoraOraId(impiegato.getId(), ora.getId());
+                if (!idEsistenti.contains(id)) {//se l'associazione non esiste già
+                    nuoveAssociazioni.add(new ImpiegatoLavoraOra(impiegato, ora, tipoOra));//la inserisco nella lista delle nuove associazioni da creare 
                 }
             }
-            return oreLavorative;
         }
-        catch (Exception e) {
-            System.out.println("Errore nel recupero delle ore lavorative per l'impiegato: " + e.getMessage());
-            return null;
+        associazioneImpiegatoOraRepository.saveAll(nuoveAssociazioni);//salvo tutte le nuove associazioni       
+         return "Assegnate con successo " + nuoveAssociazioni.size() + " ore lavorative";
+    } catch (Exception e) {
+        return "Errore nell'assegnazione delle ore: " + e.getMessage();
+    }
+}
+
+
+    public List<OraLavorativa> getAllWorkingHoursByImpiegato(Long id) {
+    try {
+        if (!impiegatoRepository.existsById(id)) {
+            System.out.println("Impiegato non trovato con questo id");
+            return Collections.emptyList();
         }
+        return associazioneImpiegatoOraRepository.findOreLavorativeByImpiegatoId(id);
+    } catch (Exception e) {     
+        System.out.println("Errore nel recupero delle ore lavorative per l'impiegato: " + e.getMessage());
+        return Collections.emptyList();
+    }
+    }
+    public String rimuoviOrePerImpiegati(List<Long> idOre, List<Long> idImpiegati) {
+            int count = associazioneImpiegatoOraRepository.deleteByImpiegatoIdInAndOraIdIn(idImpiegati, idOre);
+            return count + " associazioni rimosse";
+    }
+    public String UpdateOre(Long idImpiegato,Long idOraLavorativa,TipoOra tipoOra) {
+    try {
+        Optional<ImpiegatoLavoraOra> associazione = associazioneImpiegatoOraRepository.findById(new ImpiegatoLavoraOraId(idOraLavorativa, idImpiegato));
+       
+        if (associazione.isPresent()) {
+            ImpiegatoLavoraOra oraLavorativa = associazione.get();
+            oraLavorativa.setTipoOraLavorativa(tipoOra);
+            associazioneImpiegatoOraRepository.save(oraLavorativa);
+            return "Ore lavorative aggiornate con successo";
+        } else {
+            return "Associazione non trovata";
+        }
+    } catch (Exception e) {
+        return "Errore nell'aggiornamento delle ore lavorative: " + e.getMessage();
+    }
     }
 }
