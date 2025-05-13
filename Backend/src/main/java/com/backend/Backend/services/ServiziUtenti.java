@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,8 @@ public class ServiziUtenti {
         private ImpiegatoStipendiatoRepository impiegatoStipendiatoRepository;
         public String InsertManager(Manager manager) {
             try{
-                if(managerRepository.findByEmail(manager.getEmail()) != null) {
+                Optional<Manager> existingManager= managerRepository.findByEmail(manager.getEmail());
+                if(existingManager.isPresent()) {
                     return "Un Manager con questa email esiste già";
                 }
                 managerRepository.save(manager);
@@ -50,8 +52,8 @@ public class ServiziUtenti {
         }
         public String InsertImpiegato(Impiegato impiegato) {
             try{
-                if(impiegatoRepository.findById(impiegato.getId()) != null) {
-                    return "Un Impiegato con questo ID esiste già";
+                if(impiegatoRepository.findByEmail(impiegato.getEmail()).isPresent()) {
+                    return "Un Impiegato con questa email esiste già";
                 }
                 if(impiegato instanceof ImpiegatoPagatoOra) {
                     impiegatoPagatoOraRepository.save((ImpiegatoPagatoOra) impiegato);
@@ -65,11 +67,9 @@ public class ServiziUtenti {
                     return "Tipo di impiegato non valido";
                 }
             }
-            catch(DataIntegrityViolationException e){
-                return "Un Impiegato con questa email esiste già";
-            }
+            
             catch(Exception e){
-                return "Errore nell'inserimento dell'impiegato: " +e.getClass().getCanonicalName();
+                return "Errore nell'inserimento dell'impiegato: " +e.getMessage();
             }
         }
         public List<Utente> GetManagerByDipartimento(String dipartimento) {
