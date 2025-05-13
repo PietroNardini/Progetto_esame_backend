@@ -1,4 +1,4 @@
-package com.backend.Backend.services;
+package com.backend.Backend.services.ScheduledServices;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +15,7 @@ public class ServiceTokenCleaner {
     @Autowired
     public RepositoryPasswordResetToken tokenRepository;
 
-    @Scheduled(cron = "0 0 2 * * ?")
+    @Scheduled(cron = "0 0 2 * * ?") // Esegue ogni giorno alle 2:00 AM
     public void cleanExpiredTokens() {
         LocalDateTime now = LocalDateTime.now();
         tokenRepository.deleteAllExpiredSince(now);

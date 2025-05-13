@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import com.backend.Backend.myTables.Impiegato;
 import com.backend.Backend.myTables.ImpiegatoPagatoOra;
@@ -98,17 +97,18 @@ public class ServiziUtenti {
             return allImpiegati;
         }
         public Map<String, Object> Login(String email, String password) {
-            Utente user = utentiRepository.findByEmail(email);
-            if (user == null) {
+            Optional<Utente> user = utentiRepository.findByEmail(email);
+
+            if (user.isEmpty()) {
                     return Map.of("result", "user not found"); // Returning a String for error
             }
-            if (!user.verifyPassword(password)) {
+            if (!user.get().verifyPassword(password)) {
                     return Map.of("result", "password isn't correct for this user"); // Returning a String for error
             }
-            return Map.of("result", user); // Returning a Persona object for success
+            return Map.of("result", user.get()); // Returning a Persona object for success
     } 
     public Utente GetUtenteByEmail(String email) {
-        return utentiRepository.findByEmail(email);
+        return utentiRepository.findByEmail(email).orElse(null);
     }
     public void createPasswordResetTokenForUser(Utente user, String token) {        
         PasswordResetToken myToken = new PasswordResetToken(token, user);

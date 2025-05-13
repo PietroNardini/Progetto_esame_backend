@@ -1,7 +1,7 @@
-package com.backend.Backend.services;
+package com.backend.Backend.services.ScheduledServices;
 
 import com.backend.Backend.myTables.OraLavorativa;
-import com.backend.Backend.myTables.TipoOra;
+
 import com.backend.Backend.repositories.RepositoryOra;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
