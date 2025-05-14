@@ -16,6 +16,6 @@ public interface UtentiRepository extends JpaRepository<Utente, Long> {//utente 
         public Optional<Utente> findById(@NonNull Long id); //metodo per trovare un utente in base al suo id
         @Modifying
         @Transactional
-        @Query("UPDATE Utente p SET p.password = :password WHERE p.email = :email")
+        @Query("UPDATE Utente p SET p.password = :password WHERE p.email = :email")//metodo per aggiornare la password di un utente in base alla sua email
         void setPassword(@Param("email") String email, @Param("password") String password);
 }

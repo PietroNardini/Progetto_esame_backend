@@ -1,7 +1,6 @@
 package com.backend.Backend.services;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,23 +17,18 @@ import com.backend.Backend.myTables.ImpiegatoLavoraOra;
 import com.backend.Backend.myTables.ImpiegatoLavoraOraId;
 import com.backend.Backend.myTables.OraLavorativa;
 import com.backend.Backend.myTables.TipoOra;
-import com.backend.Backend.myTables.Utente;
 import com.backend.Backend.repositories.ImpiegatoRepository;
-import com.backend.Backend.repositories.ManagerRepository;
 import com.backend.Backend.repositories.RepositoryAssociazioneImpiegatoOra;
 import com.backend.Backend.repositories.RepositoryOra;
-import com.backend.Backend.repositories.UtentiRepository;
 
 @Service
 public class ServiziOre {
     @Autowired
     private RepositoryOra oraLavorativaRepository;
-    @Autowired
-    private UtentiRepository utentiRepository;
+    
     @Autowired
     private ImpiegatoRepository impiegatoRepository;
-    @Autowired
-    private ManagerRepository  managerRepository;
+   
     @Autowired 
     private RepositoryAssociazioneImpiegatoOra associazioneImpiegatoOraRepository;
     public List<OraLavorativa> getAllWorkingHours(String day,String month,String year) {
@@ -70,10 +64,11 @@ public class ServiziOre {
         return null;
     }
     }
+    /*Funzione assegnamento ore */
     public String assegnaOre(List<Long> idOre, List<Long> idImpiegati, TipoOra tipoOra) {
     try {
-        List<Impiegato> impiegati = impiegatoRepository.findAllById(idImpiegati);
-        List<OraLavorativa> ore = oraLavorativaRepository.findAllById(idOre);
+        List<Impiegato> impiegati = impiegatoRepository.findAllById(idImpiegati);//trovo tutti gli impiegati in base agli id
+        List<OraLavorativa> ore = oraLavorativaRepository.findAllById(idOre);//trovo tutte le ore lavorative in base agli id
         if (impiegati.size() != idImpiegati.size()) {
             return "Alcuni impiegati non sono stati trovati";
         }
@@ -107,6 +102,7 @@ public class ServiziOre {
 }
 
 
+    /*Funzione per ottenere tutte le ore lavorative di un impiegato */
     public List<OraLavorativa> getAllWorkingHoursByImpiegato(Long id) {
     try {
         if (!impiegatoRepository.existsById(id)) {
@@ -119,18 +115,21 @@ public class ServiziOre {
         return Collections.emptyList();
     }
     }
+    /*Funzione per rimuovere ore assegnate agli impiegati*/ 
     public String rimuoviOrePerImpiegati(List<Long> idOre, List<Long> idImpiegati) {
             int count = associazioneImpiegatoOraRepository.deleteByImpiegatoIdInAndOraIdIn(idImpiegati, idOre);
             return count + " associazioni rimosse";
     }
+    /*Funzione per aggiornare il tipo di un ora lavorativa assegnata a un impiegato */
     public String UpdateOre(Long idImpiegato,Long idOraLavorativa,TipoOra tipoOra) {
     try {
+        /*Trovo l'associazione con idImpeigato e idOraLavorativa come chiave primaria */
         Optional<ImpiegatoLavoraOra> associazione = associazioneImpiegatoOraRepository.findById(new ImpiegatoLavoraOraId(idOraLavorativa, idImpiegato));
        
         if (associazione.isPresent()) {
             ImpiegatoLavoraOra oraLavorativa = associazione.get();
-            oraLavorativa.setTipoOraLavorativa(tipoOra);
-            associazioneImpiegatoOraRepository.save(oraLavorativa);
+            oraLavorativa.setTipoOraLavorativa(tipoOra);//aggiorno il tipo di ora lavorativa
+            associazioneImpiegatoOraRepository.save(oraLavorativa);//salvo su database
             return "Ore lavorative aggiornate con successo";
         } else {
             return "Associazione non trovata";

@@ -9,6 +9,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
+/*@EnableScheduling è un'annotazione di Spring che abilita la pianificazione dei task. 
+ * Consente di eseguire metodi a intervalli regolari o in momenti specifici, 
+ * utilizzando annotazioni come @Scheduled per definire la logica di pianificazione.*/
 public class ServizioApplication {
 
 	public static void main(String[] args) {

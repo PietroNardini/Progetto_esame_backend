@@ -18,7 +18,7 @@ public class ServiceTokenCleaner {
     @Scheduled(cron = "0 0 2 * * ?") // Esegue ogni giorno alle 2:00 AM
     public void cleanExpiredTokens() {
         LocalDateTime now = LocalDateTime.now();
-        tokenRepository.deleteAllExpiredSince(now);
+        tokenRepository.deleteAllExpiredSince(now);//elimina tutti i token scaduti
         System.out.println("Expired tokens cleaned at " + now);
     }
 }

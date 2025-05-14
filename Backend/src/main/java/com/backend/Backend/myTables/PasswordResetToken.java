@@ -1,5 +1,4 @@
 package com.backend.Backend.myTables;
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
@@ -21,15 +20,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor//È un'annotazione di Lombok che genera un costruttore senza argomenti.
 public class PasswordResetToken {
  
-    public static final int EXPIRATION = 60*24 ;
+    public static final int EXPIRATION = 60*24 ;// 60 minuti * 24 ore = 1 giorno
+    // Definisce la durata di validità del token in minuti
  
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
  
-    private String token;
+    private String token;// Token di reset della password (parte del link mandato via email)
  
-    @OneToOne(targetEntity = Utente.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = Utente.class, fetch = FetchType.EAGER)//relazione uno a uno con l'utente
+    // FetchType.EAGER significa che l'oggetto Utente associato sarà caricato immediatamente quando viene caricato il token
     @JoinColumn(nullable = false, name = "user_id")
     private Utente user;
  

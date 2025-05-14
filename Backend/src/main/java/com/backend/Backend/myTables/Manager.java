@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "manager")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true)//per evitare conflitti di hashCode ed equals
 @NoArgsConstructor
 @AllArgsConstructor
-@PrimaryKeyJoinColumn(name = "id")
+@PrimaryKeyJoinColumn(name = "id")//per unire le tabelle manager e utente tramite Eredità
 public class Manager extends Utente {
     @Column(nullable = false)
     private Long stipendio;

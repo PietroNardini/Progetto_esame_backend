@@ -1,6 +1,5 @@
 package com.backend.Backend.api;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,21 +30,26 @@ import com.backend.Backend.services.ServiziUtenti;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.persistence.Id;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-/*Indica che questa classe è un controller REST, progettato per gestire richieste HTTP e restituire risposte JSON o altri formati direttamente nel corpo della risposta. */
+/* Indica che questa classe è un controller REST, progettato per gestire richieste HTTP 
+   e restituire risposte JSON o altri formati direttamente nel corpo della risposta. */
 @RequestMapping("/api")
 public class MainController {
         @Autowired
-        private ServiziUtenti serviziUtenti;
+        private ServiziUtenti serviziUtenti; // Servizio per la gestione degli utenti
+
         @Autowired
-        private Environment env;
+        private Environment env; // Ambiente per accedere alle variabili di configurazione
+
         @Autowired
-        private JavaMailSender mailSender;
+        private JavaMailSender mailSender; // Servizio per l'invio di email
+
         @Autowired
-        private ServiziOre serviziOra;
+        private ServiziOre serviziOra; // Servizio per la gestione delle ore lavorative
+
+        // Metodo per preparare i dati di una lista di utenti in formato mappa
         public  List<Map<String,String>> readyData(List<Utente> utenti) {
             List<Map<String,String>> data = new ArrayList<>();
             for(Utente result : utenti){
@@ -62,6 +66,8 @@ public class MainController {
             }
             return data;
         }
+
+        // Metodo per preparare i dati di un singolo utente in formato mappa
         public Map<String,Object> readyData(Utente utente) {
             Map<String,Object> data = new HashMap<>();
             data.put("id", utente.getId());
@@ -74,7 +80,9 @@ public class MainController {
             data.put("tipo", utente.getClass().getSimpleName());
             return data;
         }
+
         @GetMapping("/GetAllImpiegati")
+        // Endpoint per ottenere tutti gli impiegati
         public List<Map<String,String>> GetAllImpiegati() {
                 try{
                     return readyData(serviziUtenti.GetAllImpiegati());
@@ -85,18 +93,21 @@ public class MainController {
                         return null;
                 }
         }
+
         @GetMapping("/GetAllOre")
+        // Endpoint per ottenere tutte le ore lavorative
         public List<OraLavorativa> GetAllOre() {
             return null;
         }
 
         @PostMapping("/GetByDipartimento")
-        /*ESEMPIO CHIAMATA:
-         * POST http://localhost:8080/api/GetByDipartimento
-        * {
-        "tipo_Utente":"Manager",
-        "dipartimento": "IT"
-        }
+        /* Endpoint per ottenere utenti filtrati per dipartimento e tipo.
+           Esempio di chiamata:
+           POST http://localhost:8080/api/GetByDipartimento
+           {
+               "tipo_Utente": "Manager",
+               "dipartimento": "IT"
+           }
         */
         public List<Map<String,String>> GetByDipartimento(@RequestBody Map<String,String> request) {
             String dipartimento = request.get("dipartimento");
@@ -124,17 +135,22 @@ public class MainController {
                 return null;
             }
         }       
+
         @PostMapping("/InsertManager")
-        /*{
-        "email": "manager2@example2.com",
-        "password": "securepassword",
-        "nome": "Mario",
-        "cognome": "Bianchi",
-        "telefono": "1234567890",
-        "dipartimento": "HR",
-        "dataDiNascita":"1999-01-01",
-        "stipendio": 5000
-        } */
+        /* Endpoint per inserire un nuovo manager.
+           Esempio di chiamata:
+           POST http://localhost:8080/api/InsertManager
+           {
+               "email": "manager@example.com",
+               "password": "securepassword",
+               "nome": "Mario",
+               "cognome": "Rossi",
+               "telefono": "1234567890",
+               "dipartimento": "IT",
+               "dataDiNascita": "1990-01-01",
+               "stipendio": 5000
+           }
+        */
         public Map<String,String> InsertManager(@RequestBody Manager manager) {
             Map<String, String> response = new HashMap<>();
             try{
@@ -147,20 +163,23 @@ public class MainController {
             return response;
         }
     }
+
         @PostMapping("/InsertImpiegato")
-        /*ESEMPIO CHIAMATA 
-         POST http://localhost:8080/api/InsertImpiegato{
-            "type": "stipendiato",
-            "email": "impiegato2@example.com",
-            "password": "securepassword",
-            "nome": "Luca",
-            "cognome": "Verdi",
-            "telefono": "1234567890",
-            "dipartimento": "IT",
-            "dataDiNascita": "1990-05-15",
-            "stipendioMensile": 1500
-            }
-         */
+        /* Endpoint per inserire un nuovo impiegato.
+           Esempio di chiamata:
+           POST http://localhost:8080/api/InsertImpiegato
+           {
+               "type": "stipendiato",
+               "email": "impiegato@example.com",
+               "password": "securepassword",
+               "nome": "Luca",
+               "cognome": "Verdi",
+               "telefono": "1234567890",
+               "dipartimento": "IT",
+               "dataDiNascita": "1990-05-15",
+               "stipendioMensile": 1500
+           }
+        */
         public Map<String,String> InsertImpiegato(@RequestBody Impiegato impiegato) {
             Map<String, String> response = new HashMap<>();
             System.out.println(impiegato.getClass());
@@ -175,14 +194,16 @@ public class MainController {
             return response;
         }
     }   
-        /*ESEMPIO CHIAMATA 
-         * POST http://localhost:8080/api/Login
-         * {
-            "email":"manager2@example2.com",
-            "password": "securepassword"
-            }
-          */
+
         @PostMapping("/Login")
+        /* Endpoint per effettuare il login.
+           Esempio di chiamata:
+           POST http://localhost:8080/api/Login
+           {
+               "email": "manager@example.com",
+               "password": "securepassword"
+           }
+        */
         public ResponseEntity<Map<String, Object>> Login (@RequestBody Map<String,String> request) {
             Map<String, Object> response = new HashMap<>();
             String email = request.get("email");
@@ -206,13 +227,15 @@ public class MainController {
             return ResponseEntity.ok(response);
             
     }
+
     @PostMapping("/ResetPasswordRequest")
-    /*ESEMPIO CHIAMATA 
-         * POST http://localhost:8080/api/ResetPasswordRequest
-         * {
-            "email": "email@esempio.com"
-            }
-    }*/
+    /* Endpoint per richiedere il reset della password.
+       Esempio di chiamata:
+       POST http://localhost:8080/api/ResetPasswordRequest
+       {
+           "email": "email@esempio.com"
+       }
+    */
     public ResponseEntity<Map<String, String>> requestPasswordReset(HttpServletRequest request ,@RequestBody Map<String, String> requestBody) {
         Map<String, String> response = new HashMap<>();
         String email = requestBody.get("email");
@@ -236,7 +259,9 @@ public class MainController {
         }
         return ResponseEntity.ok(response);
     }
+
     private MimeMessage constructResetTokenEmail(String contextPath, Locale locale, String token, Utente user) throws MessagingException {
+    // Metodo per costruire l'email di reset della password
     String url = contextPath + "changePassword/" + token;
     String message = String.format("""
         <html>
@@ -271,7 +296,16 @@ public class MainController {
     helper.setText(message, true); // Set the second parameter to true to indicate HTML content
     return email;
 }   
-@PostMapping("/updatePassword")
+
+    @PostMapping("/updatePassword")
+    /* Endpoint per aggiornare la password.
+       Esempio di chiamata:
+       POST http://localhost:8080/api/updatePassword
+       {
+           "token": "token_generato",
+           "password": "nuova_password"
+       }
+    */
     public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, String> requestBody) {
         Map<String, Object> response = new HashMap<>();
         String token = requestBody.get("token");
@@ -295,32 +329,14 @@ public class MainController {
     }
    
     @PostMapping("/GetAllWorkingHours")
-    /*ESEMPIO CHIAMATA 
-         * POST http://localhost:8080/api/GetAllWorkingHours
-         * {
-            "month": "10",
-            "day": "15",
-            "year": "2023"
-            }
-         oppure 
-            * {
-                "month": "10",
-                "year": "2023"
-                }
-            oppure
-            * {
-                "day": "15",
-                "year": "2023"
-                }
-            oppure
-            * {
-                "day": "15",
-                "month": "10"
-            }
-            oppure
-        {
-            
-        }
+    /* Endpoint per ottenere tutte le ore lavorative filtrate per data.
+       Esempio di chiamata:
+       POST http://localhost:8080/api/GetAllWorkingHours
+       {
+           "month": "10",
+           "day": "15",
+           "year": "2023"
+       }
     */
     public List<OraLavorativa> GetAllWorkingHours(@RequestBody Map<String,String> request) {
         String month = request.get("month");
@@ -338,20 +354,15 @@ public class MainController {
         }
     }
    
-    /*ESEMPIO CHIAMATA
-     * POST http://localhost:8080/api/AssegnaOre
-     * {
-     * "Lista_Id_Ore": [1, 2, 3],
-     *  "Lista_Id_Impiegati": [1, 7, 9]
-     * }
-     * OPPURE
-     * * {
-     * "Lista_Id_Ore": [1],
-     *  "Lista_Id_Impiegati": [7] Per assegnare una sola ora a un solo impiegato
-     * }
-     */
-   
     @PostMapping("/AssegnaOre")
+    /* Endpoint per assegnare ore lavorative a impiegati.
+       Esempio di chiamata:
+       POST http://localhost:8080/api/AssegnaOre
+       {
+           "Lista_Id_Ore": [1, 2, 3],
+           "Lista_Id_Impiegati": [1, 7, 9]
+       }
+    */
     public Map<String, String> AssegnaOre(@RequestBody Map<String, Object> request) {
     Map<String, String> response = new HashMap<>();
     if (request.get("Lista_Id_Ore") == null || request.get("Lista_Id_Impiegati") == null) {
@@ -388,13 +399,15 @@ public class MainController {
         return response;
     }
     }
-    /*ESEMPIO CHIAMATA
-     *  POST http://localhost:8080/api/GetAllWorkingHoursByImpiegato
-     * {
-     * "Id_Impiegato": "7"
-     * }
-     */
+
     @PostMapping("/GetAllWorkingHoursByImpiegato")
+    /* Endpoint per ottenere tutte le ore lavorative di un impiegato.
+       Esempio di chiamata:
+       POST http://localhost:8080/api/GetAllWorkingHoursByImpiegato
+       {
+           "Id_Impiegato": "7"
+       }
+    */
     public List<OraLavorativa> GetAllWorkingHoursByImpiegato(@RequestBody Map<String,String> request) {
         try{
             Long id = Long.parseLong(request.get("Id_Impiegato"));
@@ -410,14 +423,16 @@ public class MainController {
             return null;
         }
     }
-    /*ESEMPIO CHIAMATA
-     * POST http://localhost:8080/api/AssegnaOre
-     * {
-     * "Lista_Id_Ore": [1, 2, 3],
-     *  "Lista_Id_Impiegati": [1, 7, 9]
-     * }
-     */
+
     @PostMapping("/RimuoviOreImpiegati")
+    /* Endpoint per rimuovere ore lavorative assegnate a impiegati.
+       Esempio di chiamata:
+       POST http://localhost:8080/api/RimuoviOreImpiegati
+       {
+           "Lista_Id_Ore": [1, 2, 3],
+           "Lista_Id_Impiegati": [1, 7, 9]
+       }
+    */
     public Map<String, String> RimuoviOre(@RequestBody Map<String, Object> request) {
     Map<String, String> response = new HashMap<>();
     if (request.get("Lista_Id_Ore") == null || request.get("Lista_Id_Impiegati") == null) {
@@ -449,16 +464,17 @@ public class MainController {
         return response;
     }
     }
-    /*
-     * ESEMPIO CHIAMATA
-     * POST http://localhost:8080/api/UpdateOre 
-     * {    
-     * "Id_Ora": "1",
-     * "Id_Impiegato": "7",
-     * "tipoOra": "straordinario"
-     * }
-     */
+
     @PatchMapping("/UpdateOre")
+    /* Endpoint per aggiornare un'ora lavorativa assegnata a un impiegato.
+       Esempio di chiamata:
+       PATCH http://localhost:8080/api/UpdateOre
+       {
+           "Id_Ora": "1",
+           "Id_Impiegato": "7",
+           "tipoOra": "straordinario"
+       }
+    */
     public Map<String, String> UpdateOre(@RequestBody Map<String, Object> request) {
         Map<String, String> response = new HashMap<>();
         if (request.get("Id_Ora") == null || request.get("Id_Impiegato") == null) {

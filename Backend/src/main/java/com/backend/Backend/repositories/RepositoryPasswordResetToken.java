@@ -12,13 +12,13 @@ import jakarta.transaction.Transactional;
 
 
 public interface RepositoryPasswordResetToken extends JpaRepository<PasswordResetToken, Long> {
-    PasswordResetToken findByToken(String token); // Find a token by its value
-    @Query("SELECT p FROM PasswordResetToken p WHERE p.user.email = :email")
-    PasswordResetToken findByEmail(@Param("email") String email); // Find a token by the user's email
+    PasswordResetToken findByToken(String token); // Trova un token per il suo valore
+    @Query("SELECT p FROM PasswordResetToken p WHERE p.user.email = :email")// Trova un token per l'email dell'utente
+    PasswordResetToken findByEmail(@Param("email") String email); 
     void deleteByToken(String token); // Delete a token by its value
     boolean existsByToken(String token); // Check if a token exists by its value
     @Modifying
     @Transactional
-    @Query("DELETE FROM PasswordResetToken t WHERE t.expiryDate < :now")
+    @Query("DELETE FROM PasswordResetToken t WHERE t.expiryDate < :now")//elemina i token scaduti
     void deleteAllExpiredSince(@Param("now") LocalDateTime now);
 }

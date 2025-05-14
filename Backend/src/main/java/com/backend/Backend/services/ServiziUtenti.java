@@ -24,6 +24,7 @@ import com.backend.Backend.repositories.UtentiRepository;
 
 @Service
 public class ServiziUtenti {
+        /*Inizializzo le repository con l'annotazione @Autowired */
         @Autowired
         private UtentiRepository utentiRepository;
         @Autowired
@@ -36,9 +37,10 @@ public class ServiziUtenti {
         private ImpiegatoRepository impiegatoRepository;
         @Autowired
         private ImpiegatoStipendiatoRepository impiegatoStipendiatoRepository;
+        /*Funzione per Inserimento manager */
         public String InsertManager(Manager manager) {
             try{
-                Optional<Manager> existingManager= managerRepository.findByEmail(manager.getEmail());
+                Optional<Manager> existingManager= managerRepository.findByEmail(manager.getEmail());//trova un manager in base alla sua email
                 if(existingManager.isPresent()) {
                     return "Un Manager con questa email esiste già";
                 }
@@ -49,16 +51,17 @@ public class ServiziUtenti {
                 return "Errore nell'inserimento del manager: " +e.getClass().getCanonicalName();
             }
         }
+        /*Funzione per Inserimento impiegato */
         public String InsertImpiegato(Impiegato impiegato) {
             try{
-                if(impiegatoRepository.findByEmail(impiegato.getEmail()).isPresent()) {
+                if(impiegatoRepository.findByEmail(impiegato.getEmail()).isPresent()) {//trova un impiegato in base alla sua email
                     return "Un Impiegato con questa email esiste già";
                 }
-                if(impiegato instanceof ImpiegatoPagatoOra) {
+                if(impiegato instanceof ImpiegatoPagatoOra) {//se l'impiegato è pagato a ore (definito smistamento in Impiegato class)
                     impiegatoPagatoOraRepository.save((ImpiegatoPagatoOra) impiegato);
                     return "Impiegato inserito con successo";
                 }
-                else if(impiegato instanceof ImpiegatoStipendiato) {
+                else if(impiegato instanceof ImpiegatoStipendiato) {//se l'impiegato è stipendiato (definito smistamento in Impiegato class)
                     impiegatoStipendiatoRepository.save((ImpiegatoStipendiato) impiegato);
                     return "Impiegato inserito con successo";
                 }
@@ -70,10 +73,14 @@ public class ServiziUtenti {
             catch(Exception e){
                 return "Errore nell'inserimento dell'impiegato: " +e.getMessage();
             }
+        
         }
+        /*Ottengo tutti i manager per dipartimento */
         public List<Utente> GetManagerByDipartimento(String dipartimento) {
             return managerRepository.findByDipartimento(dipartimento);
         }
+        /*Ottengo tutti gli impiegati per dipartimento */
+
         public List<Utente> GetImpiegatoByDipartimento(String dipartimento) {
             List<ImpiegatoPagatoOra> impiegatiPagatiOra = impiegatoPagatoOraRepository.findByDipartimento(dipartimento);
             List<ImpiegatoStipendiato> impiegatiStipendiati = impiegatoStipendiatoRepository.findByDipartimento(dipartimento);
@@ -85,6 +92,7 @@ public class ServiziUtenti {
 
             return allImpiegati;
         }
+        /*Ottengo tutti gli impiegati */
         public List<Utente> GetAllImpiegati() {
             List<ImpiegatoPagatoOra> impiegatiPagatiOra = impiegatoPagatoOraRepository.findAll();
             List<ImpiegatoStipendiato> impiegatiStipendiati = impiegatoStipendiatoRepository.findAll();
@@ -96,39 +104,41 @@ public class ServiziUtenti {
 
             return allImpiegati;
         }
+        /*Funzione di login */
         public Map<String, Object> Login(String email, String password) {
-            Optional<Utente> user = utentiRepository.findByEmail(email);
-
+            Optional<Utente> user = utentiRepository.findByEmail(email);//controlo se l'email esiste nel database
             if (user.isEmpty()) {
-                    return Map.of("result", "user not found"); // Returning a String for error
+                    return Map.of("result", "user not found"); 
             }
-            if (!user.get().verifyPassword(password)) {
-                    return Map.of("result", "password isn't correct for this user"); // Returning a String for error
+            if (!user.get().verifyPassword(password)) {//controllo se la password è corretta
+                    return Map.of("result", "password isn't correct for this user"); 
             }
             return Map.of("result", user.get()); // Returning a Persona object for success
     } 
+    /*Funzione per ottenere un impiegato in base all'email */
     public Utente GetUtenteByEmail(String email) {
         return utentiRepository.findByEmail(email).orElse(null);
     }
+    /*Funzione per creare un token da mandare via email */
     public void createPasswordResetTokenForUser(Utente user, String token) {        
-        PasswordResetToken myToken = new PasswordResetToken(token, user);
-        repositoryPasswordResetToken.save(myToken);
+        PasswordResetToken myToken = new PasswordResetToken(token, user);//creo un nuovo token
+        repositoryPasswordResetToken.save(myToken);//e lo salvo nel database
     }
-public Map<String, Object> ChangePassword(String token, String password) {
-        PasswordResetToken request = repositoryPasswordResetToken.findByToken(token);
+public Map<String, Object> ChangePassword(String token, String password) {// Funzione per cambiare la password
+        PasswordResetToken request = repositoryPasswordResetToken.findByToken(token);//se il token è corretto
         if (request == null) {
-                return Map.of("result", "wrong token"); // Returning a String for error
+                return Map.of("result", "wrong token"); 
         }
-        if (request.getExpiryDate().isBefore(LocalDateTime.now())) { // Updated to use LocalDateTime comparison
+        if (request.getExpiryDate().isBefore(LocalDateTime.now())) { //Elimino il token se è scaduto
                         System.out.println("Token expired: " + request.getExpiryDate() + " < " + LocalDateTime.now());
                         repositoryPasswordResetToken.delete(request);
 
-                        return Map.of("result", "request expired"); // Returning a String for error
+                        return Map.of("result", "request expired"); 
         }
-        Utente user = request.getUser();
-        utentiRepository.setPassword(user.getEmail(),Utente.changePassword(password)); 
-        repositoryPasswordResetToken.delete(request); 
-        user.setPassword(password); // Update the user's password in memory
+        Utente user = request.getUser();//recupero l'utente associato al token
+        utentiRepository.setPassword(user.getEmail(),Utente.changePassword(password)); //cambio la password nel database
+        repositoryPasswordResetToken.delete(request); //rimuovo il token dal database
+        user.setPassword(password); //Cambio la password dell'utente
         return Map.of("result", user); // Returning a Persona object for success
 }
 }

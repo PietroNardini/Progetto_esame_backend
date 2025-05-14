@@ -10,14 +10,14 @@ import java.time.LocalTime;
 @Table(
     name = "ora_lavorativa",
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"data", "inizio", "fine"})
+        @UniqueConstraint(columnNames = {"data", "inizio", "fine"}) //L'ora lavorativa è unica per combinazione di ogni data e intervallo di tempo
     }
 )
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor//costruttore con tutti i parametri
 
-@EqualsAndHashCode(onlyExplicitlyIncluded = true) // Use only explicitly included fields
+@EqualsAndHashCode(onlyExplicitlyIncluded = true) // Per evitare conflitti di hashCode ed equals
 
 public class OraLavorativa {
 
@@ -28,21 +28,21 @@ public class OraLavorativa {
     private Long id;
 
     @Column(nullable = false)
-    @EqualsAndHashCode.Include // Include in hashCode and equals
+    @EqualsAndHashCode.Include 
     private Date data;
 
     @Column(nullable = false)
-    @EqualsAndHashCode.Include // Include in hashCode and equals
+    @EqualsAndHashCode.Include 
 
     private LocalTime inizio;
 
     @Column(nullable = false)
-    @EqualsAndHashCode.Include // Include in hashCode and equals
+    @EqualsAndHashCode.Include 
 
     private LocalTime fine;
    
    public LocalDate getLocalDate() {
-        return data.toLocalDate();
+        return data.toLocalDate(); // Converte java.sql.Date in LocalDate
     }
 
    

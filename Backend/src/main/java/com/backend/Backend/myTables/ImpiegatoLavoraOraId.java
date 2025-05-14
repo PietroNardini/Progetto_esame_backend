@@ -10,12 +10,13 @@ import java.util.Objects;
 
 @Data
 @Embeddable
+//Questa annotazione indica che questa classe è una chiave primaria composta
 @AllArgsConstructor
 @NoArgsConstructor
-public class ImpiegatoLavoraOraId implements Serializable {
+public class ImpiegatoLavoraOraId implements Serializable {//chiave primaria dell'associazione tra impiegato e ora lavorativa
     private Long idImpiegato;
     private Long idOraLavorativa;
-    @Override
+    @Override//Ridefinisco equals e hashCode per evitare conflitti di hashCode ed equals
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ImpiegatoLavoraOraId)) return false;

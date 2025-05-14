@@ -9,9 +9,8 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@PrimaryKeyJoinColumn(name = "id")
+@PrimaryKeyJoinColumn(name = "id")//per unire le tabelle impiegato e utente tramite Eredità
 public class ImpiegatoPagatoOra extends Impiegato {
-
     @Column(nullable = false)
     private Double pagaOraria;
     

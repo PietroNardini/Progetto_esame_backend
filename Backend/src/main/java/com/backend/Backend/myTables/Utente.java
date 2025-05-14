@@ -13,15 +13,15 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-@Data
-@NoArgsConstructor
+@Data//getter e setter
+@NoArgsConstructor//creazione del costruttore vuoto
+@Entity//entità JPA
+@Inheritance(strategy = InheritanceType.JOINED)//per utilizzare l'ereditarietà in JPA
+@Table(name = "utente")//tabella del database
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "utente")
 public abstract class Utente {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //chiave primaria
+    @GeneratedValue(strategy = GenerationType.IDENTITY)//generazione automatica dell'id
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -53,6 +53,7 @@ public abstract class Utente {
         this.dipartimento = dipartimento;
         this.dataDiNascita = dataDiNascita;
     }
+    /*funzione relative all'hashing della password */
     public void setPassword(String rawPassword) {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             this.password = passwordEncoder.encode(rawPassword);
