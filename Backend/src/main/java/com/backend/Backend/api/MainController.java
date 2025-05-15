@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.Backend.myTables.Impiegato;
 
 import com.backend.Backend.myTables.Manager;
+import com.backend.Backend.myTables.OraImpiegatoRecord;
 import com.backend.Backend.myTables.OraLavorativa;
 import com.backend.Backend.myTables.TipoOra;
 import com.backend.Backend.myTables.Utente;
@@ -500,4 +503,80 @@ public class MainController {
             return response;
         }
     }
+    /*
+     * Endpoint per ottenere tutti gli impiegati che lavorano in una certa ora lavorativa.
+       Esempio di chiamata:
+       POST http://localhost:8080/api/GetAllImpiegatiByIdOra
+       {
+           "Id_Ora": "1"
+       }
+     */
+    @PostMapping("/GetAllImpiegatiByIdOra")
+    public List<Impiegato> GetAllImpiegatiByIdOra(@RequestBody Map<String,String> request) {
+        try{
+            Long id = Long.parseLong(request.get("Id_Ora"));
+            return serviziOra.getAllImpiegatiByIdOra(id);
+        }
+        catch (NumberFormatException e) {
+            System.out.println( "Invalid number format for Id_Ora or IDs");
+            return null;
+        } 
+        catch(Exception e){
+            System.out.println("Errore nel recupero delle ore lavorative: " + e.getMessage());
+            return null;
+        }
+    }
+    @PostMapping("/GetOreImpiegatiPerData")
+    /* Endpoint per ottenere ore lavorative e impiegati per una certa data.
+       Esempio di chiamata:
+       POST http://localhost:8080/api/GetOreImpiegatiPerData
+       {
+           "data": "2023-10-15"
+       }
+    */
+    public List<OraImpiegatoRecord> GetOreImpiegatiPerData(@RequestBody Map<String, String> request) {
+        try {
+            String data = request.get("data");
+            if (data == null) {
+                throw new IllegalArgumentException("Data is required");
+            }
+            // Converti la stringa in un oggetto LocalDate
+            LocalDate parsedDate = LocalDate.parse(data); 
+            return serviziOra.getOreImpiegatiPerData(parsedDate); 
+        } catch (DateTimeParseException e) {
+            System.out.println("Formato data non valido: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            System.out.println("Errore nel recupero delle ore lavorative: " + e.getMessage());
+            return null;
+        }
+    }
+    @PostMapping("/GetOreImpiegatiPerRange")
+    /* Endpoint per ottenere ore lavorative e impiegati per un intervallo di date.
+       Esempio di chiamata:
+       POST http://localhost:8080/api/GetOreImpiegatiPerWeek
+       {
+           "start": "2023-10-01",
+           "end": "2023-10-07"
+       }
+    */
+    public List<OraImpiegatoRecord> GetOreImpiegatiPerRange(@RequestBody Map<String, String> request) {
+        try {
+            String start = request.get("start");
+            String end = request.get("end");
+            if (start == null || end == null) {
+                throw new IllegalArgumentException("Start and end dates are required");
+            }
+            LocalDate parsedStartDate = LocalDate.parse(start);
+            LocalDate parsedEndDate = LocalDate.parse(end);
+            return serviziOra.getOreImpiegatiPerDataRange(parsedStartDate, parsedEndDate);
+        } catch (DateTimeParseException e) {
+            System.out.println("Formato data non valido: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            System.out.println("Errore nel recupero delle ore lavorative: " + e.getMessage());
+            return null;
+        }
+    }
+
 }
