@@ -1,7 +1,6 @@
 package com.backend.Backend.services;
 
 import java.sql.Date;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import com.backend.Backend.myTables.Impiegato;
@@ -126,6 +124,15 @@ public class ServiziOre {
     public String rimuoviOrePerImpiegati(List<Long> idOre, List<Long> idImpiegati) {
             int count = associazioneImpiegatoOraRepository.deleteByImpiegatoIdInAndOraIdIn(idImpiegati, idOre);
             return count + " associazioni rimosse";
+    }
+    /*Funzione per ottenere le ore assegnate a un impiegato */
+    public List<ImpiegatoLavoraOra> OttieniOreAssegnate(List<Long> idOre, Long idImpiegato) {
+    try {
+        return associazioneImpiegatoOraRepository.findAssociazioniByIdOreAndIdImpiegato(idOre, idImpiegato);
+    } catch (Exception e) {
+        System.out.println("Errore nel recupero delle ore assegnate: " + e.getMessage());
+        return Collections.emptyList();
+    }
     }
     /*Funzione per aggiornare il tipo di un ora lavorativa assegnata a un impiegato */
     public String UpdateOre(Long idImpiegato,Long idOraLavorativa,TipoOra tipoOra) {

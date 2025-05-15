@@ -578,5 +578,33 @@ public class MainController {
             return null;
         }
     }
-
+    @PostMapping("/CalcoloStipendio")
+    /* Endpoint per calcolare lo stipendio di un impiegato in base alle ore lavorative.
+        Esempio di chiamata:
+        POST http://localhost:8080/api/CalcoloStipendio
+        {
+             "Id_Impiegato": "7"
+        }
+    */
+    public ResponseEntity<Map<String, Object>> CalcoloStipendioPerMese(@RequestBody Map<String, String> request) {
+         Map<String, Object> response = new HashMap<>();
+         try {
+              String idImpiegatoStr = request.get("Id_Impiegato");
+              String month=request.get("mese");
+              if (idImpiegatoStr == null) {
+                    response.put("error", "Id_Impiegato is required");
+                    return ResponseEntity.badRequest().body(response);
+              }
+              Long idImpiegato = Long.parseLong(idImpiegatoStr);
+              response=serviziUtenti.calcolaStipendio(idImpiegato,month);
+              return ResponseEntity.ok(response);
+         } catch (NumberFormatException e) {
+              response.put("error", "Invalid number format for Id_Impiegato");
+              return ResponseEntity.badRequest().body(response);
+         } catch (Exception e) {
+              System.out.println("Errore nel calcolo dello stipendio: " + e.getMessage());
+              response.put("error", "Errore nel calcolo dello stipendio");
+              return ResponseEntity.badRequest().body(response);
+         }
+    }
 }

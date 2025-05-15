@@ -48,4 +48,11 @@ public interface RepositoryAssociazioneImpiegatoOra extends JpaRepository<Impieg
     WHERE o.data BETWEEN :start AND :end
     """)
 List<Object[]> findAllOraImpiegatoByDataRange(@Param("start") Date start, @Param("end") Date end);
+    @Query("""
+        SELECT i 
+        FROM ImpiegatoLavoraOra i 
+        WHERE i.id.idImpiegato = :idImpiegato 
+        AND i.id.idOraLavorativa IN :idOre
+    """)
+    List<ImpiegatoLavoraOra> findAssociazioniByIdOreAndIdImpiegato(@Param("idOre") List<Long> idOre, @Param("idImpiegato") Long idImpiegato);
 }
