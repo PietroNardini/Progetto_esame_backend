@@ -3,6 +3,8 @@ package com.backend.Backend.services.ScheduledServices;
 import com.backend.Backend.myTables.OraLavorativa;
 
 import com.backend.Backend.repositories.RepositoryOra;
+import com.backend.Backend.services.ServizioArchiviazione;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,10 +19,14 @@ public class TurnSchedulerService {
 
     @Autowired
     private RepositoryOra oraLavorativaRepository;
+    @Autowired
+    private ServizioArchiviazione servizioArchiviazione;
     // Eseguito il primo giorno del mese a mezzanotte
-    @Scheduled(cron = "0 0 0 1 * ?")
-    //@Scheduled(cron = "0 * * * * ?") // Per test: ogni minuto
+    //@Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(cron = "0 * * * * ?") // Per test: ogni minuto
     public void generateMonthlyWorkingHours() {
+        servizioArchiviazione.archiviaOrePrecedentiAlMeseCorrente();
+        servizioArchiviazione.deleteStoricoOlderThanOneYear();
         LocalDate today = LocalDate.now();// Ottieni la data odierna
         // Calcola il primo e l'ultimo giorno del mese corrente
         LocalDate firstDayOfMonth = today.withDayOfMonth(1);
