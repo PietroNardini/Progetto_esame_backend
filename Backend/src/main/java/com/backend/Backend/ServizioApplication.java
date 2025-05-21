@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Consente di eseguire metodi a intervalli regolari o in momenti specifici, 
  * utilizzando annotazioni come @Scheduled per definire la logica di pianificazione.*/
 public class ServizioApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(ServizioApplication.class, args);
 	}

@@ -22,8 +22,8 @@ public class TurnSchedulerService {
     @Autowired
     private ServizioArchiviazione servizioArchiviazione;
     // Eseguito il primo giorno del mese a mezzanotte
-    //@Scheduled(cron = "0 0 0 1 * ?")
-    @Scheduled(cron = "0 * * * * ?") // Per test: ogni minuto
+    @Scheduled(cron = "0 0 0 1 * ?")
+    //@Scheduled(cron = "0 * * * * ?") // Per test: ogni minuto
     public void generateMonthlyWorkingHours() {
         servizioArchiviazione.archiviaOrePrecedentiAlMeseCorrente();
         servizioArchiviazione.deleteStoricoOlderThanOneYear();
