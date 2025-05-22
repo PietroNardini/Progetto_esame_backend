@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -106,9 +105,31 @@ class MainControllerTest {
         assertEquals("Bianchi", userData.get("cognome"));
         assertEquals("HR", userData.get("dipartimento"));
         assertEquals("Mario", userData.get("nome"));
-        assertEquals(6L, userData.get("id")); // Attenzione a possibili differenze Long vs Integer
+        assertEquals(6L, userData.get("id")); 
         assertEquals("1234567890", userData.get("telefono"));
         assertEquals("manager2@example2.com", userData.get("email"));
         assertEquals("1999-01-01", userData.get("dataDiNascita"));
     }
+   @Test
+    void testInsertManagerIfNotExists() {
+        Manager testManager = new Manager();
+        testManager.setId(6L);
+        testManager.setEmail("manager2@example2.com");
+        testManager.setPassword("securepassword");
+        testManager.setNome("Mario");
+        testManager.setCognome("Bianchi");
+        testManager.setTelefono("1234567890");
+        testManager.setDipartimento("HR");
+        testManager.setDataDiNascita(Date.valueOf(LocalDate.of(1999, 1, 1)));
+        testManager.setStipendio(5000L);
+
+        when(serviziUtenti.InsertManager(testManager))
+            .thenReturn("Manager inserito con successo");
+
+        Map<String, String> response = mainController.InsertManager(testManager);
+
+        assertNotNull(response);
+        assertEquals("Manager inserito con successo", response.get("message"));
+    }
+
 }
