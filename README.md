@@ -17,6 +17,13 @@ cd backend
 ./gradlew bootRun
 ```
 
+## Avvio con Docker
+
+```bash
+cd backend
+docker-compose up --build
+
+```
 ## Funzionalità principali
 - Login e autenticazione
 - Gestione utenti (dipendenti e manager)
