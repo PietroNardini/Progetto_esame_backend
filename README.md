@@ -17,8 +17,13 @@ cd backend
 ./gradlew bootRun
 ```
 
-## Avvio con Docker
+## Installazione Database PostgresSQL 17
 
+su PGAdmin4, creare un database HRFlow su porta 5432, cambiare utente e password nel dockerfile in base alle proprie credenziali, fare restore del database il dump_custom_database.sql oppure copia incollare backup_database.sql nel psql tool di PGAdmin4
+
+
+## Avvio con Docker
+necessario docker desktop
 ```bash
 cd backend
 docker-compose up --build
