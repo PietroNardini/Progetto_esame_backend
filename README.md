@@ -27,8 +27,8 @@ necessario docker desktop
 ```bash
 cd backend
 docker-compose up --build
-
 ```
+
 ## Funzionalità principali
 - Login e autenticazione
 - Gestione utenti (dipendenti e manager)
