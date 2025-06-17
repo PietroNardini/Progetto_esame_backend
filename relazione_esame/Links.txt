@@ -1,7 +1,8 @@
 Link trello : https://trello.com/b/vI8Kcn1a/my-trello-board
-Link relazione : https://docs.google.com/presentation/d/1cu3fAVm-vTV39XvX8GDG6Nbj9NmUncJJuEB-Ss1V3pU/edit?slide=id.p1#slide=id.p1
+Link relazione (per sicurezza): https://docs.google.com/presentation/d/1cu3fAVm-vTV39XvX8GDG6Nbj9NmUncJJuEB-Ss1V3pU/edit?slide=id.p1#slide=id.p1
+link video:https://drive.google.com/file/d/1cw3Gt5SOr0Ow2atrMQxK5Rl1yRdSDrI3/view?usp=sharing
 Link 45 esercizi Java:
     Pietro Nardini:https://github.com/PietroNardini/Esercizi_Ingegneria_Software
-    Tommaso Amà: 
+    Tommaso Amà: https://github.com/TommasoAma/Esercitazioni_Ingegneria_del_Software
     Francesco Fiorini:
     Roberto D'Angelo:
