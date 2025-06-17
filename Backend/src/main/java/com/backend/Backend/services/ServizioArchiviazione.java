@@ -31,7 +31,10 @@ public class ServizioArchiviazione {
 
     @Transactional
 public void archiviaOrePrecedentiAlMeseCorrente() {
-    try{
+    /*elimino le ore e le associazioni dalle tabelle interrogate più frequentemente e le inserisco nelle tabelle di archivio, accessibili in caso di necessità*/
+    
+    
+    try{//creo le liste di ore e associazioni da archiviare
     List<OraLavorativa> daArchiviare = oraLavorativaRepository.findAll();
     List<ImpiegatoLavoraOra> associazioniDaArchiviare=impiegatoLavoraOraRepository.findAll();
     List<ImpiegatoLavoraOraStorico> associazioni_Archivio= associazioniDaArchiviare.stream()
@@ -59,6 +62,7 @@ public void archiviaOrePrecedentiAlMeseCorrente() {
     
         @Transactional
         public void deleteStoricoOlderThanOneYear() {
+            //elimino tutto lo storico di oltre un anno fa per evitare dimensioni di database troppo grandi
             LocalDate oneYearAgo = LocalDate.now().minusYears(1);
 
             // Find all OraLavorativaStorico older than one year
@@ -74,3 +78,4 @@ public void archiviaOrePrecedentiAlMeseCorrente() {
             oraLavorativaStoricoRepository.deleteAll(oldOre);
         }
 }
+
